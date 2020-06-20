@@ -3,4 +3,21 @@
     <string name="title_event">Date</string>
     <string name="title_birthday">Event</string>
     <string name="title_social">"Social "</string>
+    <string name="january">January</string>
+    <string name="february">Febuary</string>
+    <string name="march">March</string>
+    <string name="april">April</string>
+    <string name="may">May</string>
+    <string name="june">June</string>
+    <string name="july">July</string>
+    <string name="august">August</string>
+    <string name="september">September</string>
+    <string name="october">October</string>
+    <string name="november">November</string>
+    <string name="december">December</string>
+    <string name="string_problem">\???</string>
+    <string name="format_date">%1$d %2$s %3$d</string>
+    <string name="firstname_lastname_event">%1$s %2$s</string>
+    <string name="format_date_without_year">%1$d %2$s</string>
+    <string name="remaining_days">%1$dj</string>
 </resources>
