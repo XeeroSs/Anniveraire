@@ -67,18 +67,18 @@ object UtilsDate {
             calendarDate.time = date
             calendarNow.time = dateToday
             if (calendarNow.after(calendarDate)) return 0
-            val year1 = calendarDate.get(Calendar.YEAR);
-            val year2 = calendarNow.get(Calendar.YEAR);
-            var age = year1 - year2;
-            val month1 = calendarDate.get(Calendar.MONTH);
-            val month2 = calendarNow.get(Calendar.MONTH);
+            val year1 = calendarDate.get(Calendar.YEAR)
+            val year2 = calendarNow.get(Calendar.YEAR)
+            var age = year1 - year2
+            val month1 = calendarDate.get(Calendar.MONTH)
+            val month2 = calendarNow.get(Calendar.MONTH)
             if (month2 > month1) {
-                age--;
+                age--
             } else if (month1 == month2) {
-                val day1 = calendarDate.get(Calendar.DAY_OF_MONTH);
-                val day2 = calendarNow.get(Calendar.DAY_OF_MONTH);
+                val day1 = calendarDate.get(Calendar.DAY_OF_MONTH)
+                val day2 = calendarNow.get(Calendar.DAY_OF_MONTH)
                 if (day2 > day1) {
-                    age--;
+                    age--
                 }
             }
             return age

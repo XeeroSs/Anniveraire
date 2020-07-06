@@ -17,9 +17,11 @@ import com.xeross.anniveraire.controller.date.DateFragment
 import com.xeross.anniveraire.controller.event.EventFragment
 import com.xeross.anniveraire.controller.social.SocialFragment
 import com.xeross.anniveraire.model.Event
+import com.xeross.anniveraire.model.EventState
 import com.xeross.anniveraire.model.SortState
 import kotlinx.android.synthetic.main.alertdialog_birthday.view.*
 import kotlinx.android.synthetic.main.alertdialog_choice_type_event.view.*
+import kotlinx.android.synthetic.main.alertdialog_event_and_other.view.*
 import kotlinx.android.synthetic.main.alertdialog_sort.view.*
 import java.util.*
 
@@ -40,10 +42,7 @@ abstract class BaseFragment : Fragment() {
             main = it
             it.setBaseFragment(this)
         }
-        initializeDatePicker().let {
-            calendar = it.first
-            datePickerDialog = it.second
-        }
+        calendar = Calendar.getInstance()
         /*  eventViewModel =
                   ViewModelProviders.of(this).get(EventViewModel::class.java)
           val textView: TextView = root.findViewById(R.id.text_home)
@@ -69,11 +68,11 @@ abstract class BaseFragment : Fragment() {
                         alertDialog.dismiss()
                     }
                     viewDialog.alertdialog_choice_type_event_button_birthday_event.setOnClickListener {
-                        createPopupForBirthdayEvent(context)
+                        createPopupForBirthdayEventOrOther(context, false)
                         alertDialog.dismiss()
                     }
                     viewDialog.alertdialog_choice_type_event_button_other_event.setOnClickListener {
-                        createPopupForOtherEvent(context)
+                        createPopupForBirthdayEventOrOther(context, true)
                         alertDialog.dismiss()
                     }
                 }
@@ -82,6 +81,7 @@ abstract class BaseFragment : Fragment() {
     private fun createPopupForBirthday(context: Context) {
         LayoutInflater.from(context).inflate(R.layout.alertdialog_birthday, null).let { view ->
 
+            datePickerDialog = getDatePicker(view.alertdialog_birthday_edittext_date)
             onClickDatePicker(view.alertdialog_birthday_edittext_date, context)
 
             val alertDialog = createDialog(context, view, "Birthday")
@@ -105,69 +105,46 @@ abstract class BaseFragment : Fragment() {
                 getEventFragment()?.apply {
                     updateEventList(event)
                 }
-
+                alertDialog.dismiss()
             }
         }
     }
 
-    private fun createPopupForBirthdayEvent(context: Context) {
-        LayoutInflater.from(context).inflate(R.layout.alertdialog_birthday, null).let { view ->
+    private fun createPopupForBirthdayEventOrOther(context: Context, isOther: Boolean) {
+        LayoutInflater.from(context).inflate(R.layout.alertdialog_event_and_other, null).let { view ->
 
-            onClickDatePicker(view.alertdialog_birthday_edittext_date, context)
+            datePickerDialog = getDatePicker(view.alertdialog_event_and_other_edittext_date)
+            onClickDatePicker(view.alertdialog_event_and_other_edittext_date, context)
 
-            val alertDialog = createDialog(context, view, "Birthday")
+            val alertDialog = createDialog(context, view,
+                    if (!isOther) "Event birthday" else "Event other")
 
-            view.alertdialog_birthday_button_back.setOnClickListener {
+            view.alertdialog_event_and_other_button_back.setOnClickListener {
                 createPopupForChoiceEvent(context)
                 alertDialog.dismiss()
             }
-            view.alertdialog_birthday_button_add.setOnClickListener {
-                if (view.alertdialog_birthday_edittext_date.text!!.isEmpty() ||
-                        view.alertdialog_birthday_edittext_lastname.text!!.isEmpty() ||
-                        view.alertdialog_birthday_edittext_name.text!!.isEmpty()) {
+
+            view.alertdialog_event_and_other_button_add.setOnClickListener {
+                if (view.alertdialog_event_and_other_edittext_date.text!!.isEmpty() ||
+                        view.alertdialog_event_and_other_name.text!!.isEmpty()) {
                     main.sendMissingInformationMessage()
                     return@setOnClickListener
                 }
 
-                val event = Event(firstName = view.alertdialog_birthday_edittext_name.text!!.toString(),
-                        lastName = view.alertdialog_birthday_edittext_lastname.text!!.toString(),
-                        dateBirth = getStringInDate(view.alertdialog_birthday_edittext_date.text!!.toString()))
+                val event = if (!isOther) {
+                    Event(firstName = view.alertdialog_event_and_other_name.text!!.toString(),
+                            state = EventState.EVENT_BIRTHDAY,
+                            dateBirth = getStringInDate(view.alertdialog_event_and_other_edittext_date.text!!.toString()))
+                } else {
+                    Event(firstName = view.alertdialog_event_and_other_name.text!!.toString(),
+                            state = EventState.OTHER,
+                            dateBirth = getStringInDate(view.alertdialog_event_and_other_edittext_date.text!!.toString()))
+                }
 
                 getEventFragment()?.apply {
                     updateEventList(event)
                 }
-
-            }
-        }
-    }
-
-    private fun createPopupForOtherEvent(context: Context) {
-        LayoutInflater.from(context).inflate(R.layout.alertdialog_birthday, null).let { view ->
-
-            onClickDatePicker(view.alertdialog_birthday_edittext_date, context)
-
-            val alertDialog = createDialog(context, view, "Birthday")
-
-            view.alertdialog_birthday_button_back.setOnClickListener {
-                createPopupForChoiceEvent(context)
                 alertDialog.dismiss()
-            }
-            view.alertdialog_birthday_button_add.setOnClickListener {
-                if (view.alertdialog_birthday_edittext_date.text!!.isEmpty() ||
-                        view.alertdialog_birthday_edittext_lastname.text!!.isEmpty() ||
-                        view.alertdialog_birthday_edittext_name.text!!.isEmpty()) {
-                    main.sendMissingInformationMessage()
-                    return@setOnClickListener
-                }
-
-                val event = Event(firstName = view.alertdialog_birthday_edittext_name.text!!.toString(),
-                        lastName = view.alertdialog_birthday_edittext_lastname.text!!.toString(),
-                        dateBirth = getStringInDate(view.alertdialog_birthday_edittext_date.text!!.toString()))
-
-                getEventFragment()?.apply {
-                    updateEventList(event)
-                }
-
             }
         }
     }
@@ -181,14 +158,13 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    private fun initializeDatePicker(): Pair<Calendar, DatePickerDialog.OnDateSetListener> {
-        val calendar = Calendar.getInstance()
-
-        return Pair(calendar, DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+    private fun getDatePicker(editText: EditText): DatePickerDialog.OnDateSetListener {
+        return DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-        })
+            editText.text = getDateInString(calendar.time).toEditable()
+        }
     }
 
     private fun getSocialFragment() = getFragment<SocialFragment>()

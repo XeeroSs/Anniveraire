@@ -39,4 +39,5 @@
     <string name="ascending_age">Ascending Age</string>
     <string name="descending_age">Descending Age</string>
     <string name="age">Age</string>
+    <string name="enter_the_date">Enter the date</string>
 </resources>

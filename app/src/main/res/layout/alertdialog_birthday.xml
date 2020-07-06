@@ -51,7 +51,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/first_name"
-                    android:inputType="date"
                     android:maxLength="25"
                     android:maxLines="1" />
 
