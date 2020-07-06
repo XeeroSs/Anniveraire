@@ -13,4 +13,5 @@
 
     <!-- BUTTON -->
     <color name="button_favorite">#F06292</color>
+    <color name="colorWhite">#ffffff</color>
 </resources>

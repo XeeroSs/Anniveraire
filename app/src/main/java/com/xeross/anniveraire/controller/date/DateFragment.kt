@@ -6,16 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.xeross.anniveraire.R
+import com.xeross.anniveraire.controller.BaseFragment
 
-class DateFragment : Fragment() {
+class DateFragment : BaseFragment() {
 
     private lateinit var dateModel: DateModel
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.fragment_date, container, false)
-    }
+    override fun getFragmentId() = R.layout.fragment_date
+
 }

@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.Utils
+import com.xeross.anniveraire.UtilsDate
 import com.xeross.anniveraire.model.Event
 import com.xeross.anniveraire.model.EventState
 import kotlinx.android.synthetic.main.event_cell.view.*
@@ -35,21 +35,29 @@ class EventAdapter(
     }
 
     private fun updateItem(contextMain: Context, event: Event, holder: EventViewHolder) {
-        Glide.with(contextMain).load(if (event.imageURL == "") R.drawable.im_gift else event.imageURL).into(holder.imageEvent)
         holder.nameEvent.text = if (event.lastName == "") event.firstName else
             contextMain.getString(R.string.firstname_lastname_event, event.firstName, event.lastName)
-        holder.remainingDaysEvent.text = contextMain.getString(R.string.remaining_days, Utils.getRemainingDays(event.dateBirth, dateToday))
+        holder.remainingDaysEvent.text = contextMain.getString(R.string.remaining_days, UtilsDate.getRemainingDays(event.dateBirth, dateToday))
         when (event.state) {
-            EventState.BIRTHDAY -> holder.dateEvent.text = Utils.getDateInString(event.dateBirth, contextMain)
+            EventState.BIRTHDAY -> {
+                eventBirthday(holder, event, contextMain, R.drawable.ic_birthday_cake)
+            }
             EventState.EVENT_BIRTHDAY -> {
-                holder.dateEvent.text = Utils.getDateInString(event.dateBirth, contextMain)
+                eventBirthday(holder, event, contextMain, R.drawable.im_calendar_event)
                 holder.remainingDaysEvent.setTextColor(contextMain.resources.getColor(R.color.colorPrimary))
             }
             EventState.OTHER -> {
-                holder.dateEvent.text = Utils.getDateWithoutYearInString(event.dateBirth, contextMain)
+                Glide.with(contextMain).load(R.drawable.im_champagne).into(holder.imageEvent)
+                holder.dateEvent.text = UtilsDate.getDateWithoutYearInString(event.dateBirth, contextMain)
                 holder.ageEvent.visibility = View.GONE
             }
         }
+    }
+
+    private fun eventBirthday(holder: EventViewHolder, event: Event, contextMain: Context, imageDrawable: Int) {
+        Glide.with(contextMain).load(imageDrawable).into(holder.imageEvent)
+        holder.dateEvent.text = UtilsDate.getDateInString(event.dateBirth, contextMain)
+        holder.ageEvent.text = contextMain.getString(R.string.age_event, UtilsDate.getAgeEvent(dateToday, event.dateBirth).plus(1))
     }
 
     class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

@@ -1,7 +1,9 @@
 package com.xeross.anniveraire
 
+import android.os.Build
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -39,10 +41,41 @@ class ExampleUnitTest {
 
     @Test
     fun remainingDays_isCorrect() {
-        val remainingDays = ChronoUnit.DAYS.between(Date(120, 1, 11).toInstant(),
-                Date(120, 2, 11).toInstant())
+        val dateBefore = Date(110, 5, 21)
+        val dateNow = Date()
 
-        assertEquals("29", "$remainingDays")
+        assertEquals("29", "${getRemainingDays(dateBefore, dateNow)}")
+    }
+
+    fun getRemainingDays(date: Date, dateToday: Date): Long {
+        val dateBefore = date.clone() as Date
+        if (dateBefore.month == dateToday.month) {
+            println("month == month")
+            if (dateBefore.day == dateToday.day) return 0
+            if (dateBefore.day < dateToday.day) {
+                println("day < day")
+                dateBefore.year = dateToday.year
+                dateToday.year = dateToday.year.plus(1)
+            } else {
+                println("day > day")
+                dateBefore.year = dateToday.year
+            }
+        } else if (dateBefore.month < dateToday.month) {
+            println("month < month")
+            dateBefore.year = dateToday.year
+            dateToday.year = dateToday.year.plus(1)
+
+        } else {
+            println("month > month")
+            dateBefore.year = dateToday.year
+        }
+        //dateBefore.year = dateToday.year
+        return ChronoUnit.DAYS.between(dateBefore.toInstant(),
+                dateToday.toInstant())
+       /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ChronoUnit.DAYS.between(dateToday.toInstant(),
+                    dateBefore.toInstant())
+        } else (dateToday.time - dateBefore.time) / (1000 * 60 * 60 * 24)*/
     }
 
     @Test
@@ -51,5 +84,46 @@ class ExampleUnitTest {
                 - Date(120, 1, 11).time) / (1000 * 60 * 60 * 24)
 
         assertEquals("29", "$remainingDays")
+    }
+
+    @Test
+    fun ageEvent_isCorrect() {
+        val date = Date()
+        val dateToday = Date(100, 7, 11)
+        assertEquals(19, getAgeEvent(date, dateToday))
+    }
+
+    @Test
+    fun ageEventAPI26_isCorrect() {
+        val date = Date()
+        val dateToday = Date(100, 7, 11)
+        assertEquals(19, getAgeEventAPI26(date, dateToday))
+    }
+
+    fun getAgeEvent(date: Date, dateToday: Date): Int? {
+        val calendarDate = Calendar.getInstance()
+        val calendarNow = Calendar.getInstance()
+        calendarDate.time = date
+        calendarNow.time = dateToday
+        if (calendarNow.after(calendarDate)) return 0
+        val year1 = calendarDate.get(Calendar.YEAR);
+        val year2 = calendarNow.get(Calendar.YEAR);
+        var age = year1 - year2;
+        val month1 = calendarDate.get(Calendar.MONTH);
+        val month2 = calendarNow.get(Calendar.MONTH);
+        if (month2 > month1) {
+            age--;
+        } else if (month1 == month2) {
+            val day1 = calendarDate.get(Calendar.DAY_OF_MONTH);
+            val day2 = calendarNow.get(Calendar.DAY_OF_MONTH);
+            if (day2 > day1) {
+                age--;
+            }
+        }
+        return age
+    }
+
+    fun getAgeEventAPI26(date: Date, dateToday: Date): Int? {
+        return ChronoUnit.YEARS.between(dateToday.toInstant().atZone(ZoneId.systemDefault()), date.toInstant().atZone(ZoneId.systemDefault())).toInt()
     }
 }
