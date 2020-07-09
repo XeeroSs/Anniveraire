@@ -10,13 +10,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.UtilsDate.getDateInString
 import com.xeross.anniveraire.controller.date.DateFragment
 import com.xeross.anniveraire.controller.event.EventFragment
 import com.xeross.anniveraire.controller.social.SocialFragment
 import com.xeross.anniveraire.model.SortState
+import com.xeross.anniveraire.utils.UtilsDate.getDateInString
 import kotlinx.android.synthetic.main.alertdialog_choice_type_event.view.*
 import kotlinx.android.synthetic.main.alertdialog_sort.view.*
 import java.util.*
@@ -31,7 +32,11 @@ abstract class BaseFragment : Fragment() {
 
     abstract fun getFragmentId(): Int
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         val root = inflater.inflate(getFragmentId(), container, false)
         dateToday = Date()
         (activity as MainActivity).let {
@@ -56,30 +61,32 @@ abstract class BaseFragment : Fragment() {
 
     internal fun createPopupForChoiceEvent(context: Context) {
         LayoutInflater.from(context).inflate(R.layout.alertdialog_choice_type_event, null)
-                .let { viewDialog ->
-                    val alertDialog = createDialog(context, viewDialog, "Event type")
+            .let { viewDialog ->
+                val alertDialog = createDialog(context, viewDialog, "Event type")
 
-                    viewDialog.alertdialog_choice_type_event_button_birthday.setOnClickListener {
-                        getEventFragment()?.createPopupForBirthday(context)
-                        alertDialog.dismiss()
-                    }
-                    viewDialog.alertdialog_choice_type_event_button_birthday_event.setOnClickListener {
-                        getEventFragment()?.createPopupForBirthdayEventOrOther(context, false)
-                        alertDialog.dismiss()
-                    }
-                    viewDialog.alertdialog_choice_type_event_button_other_event.setOnClickListener {
-                        getEventFragment()?.createPopupForBirthdayEventOrOther(context, true)
-                        alertDialog.dismiss()
-                    }
+                viewDialog.alertdialog_choice_type_event_button_birthday.setOnClickListener {
+                    getEventFragment()?.createPopupForBirthday(context)
+                    alertDialog.dismiss()
                 }
+                viewDialog.alertdialog_choice_type_event_button_birthday_event.setOnClickListener {
+                    getEventFragment()?.createPopupForBirthdayEventOrOther(context, false)
+                    alertDialog.dismiss()
+                }
+                viewDialog.alertdialog_choice_type_event_button_other_event.setOnClickListener {
+                    getEventFragment()?.createPopupForBirthdayEventOrOther(context, true)
+                    alertDialog.dismiss()
+                }
+            }
     }
 
     protected fun onClickDatePicker(editText: EditText, context: Context) {
         editText.text = getDateInString(calendar.time).toEditable()
         editText.setOnClickListener {
-            DatePickerDialog(context, datePickerDialog, calendar
+            DatePickerDialog(
+                context, datePickerDialog, calendar
                     .get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)).show()
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
         }
     }
 
@@ -96,31 +103,45 @@ abstract class BaseFragment : Fragment() {
     private fun getDateFragment() = getFragment<DateFragment>()
     private fun getEventFragment() = getFragment<EventFragment>()
 
-    private inline fun <reified T> getFragment() =
-            fragment?.takeIf { fragment is T }?.let {
-                it as T
-            } ?: run {
-                main.sendErrorMessage()
-                null
-            }
+    private inline fun <reified T : BaseFragment> getFragment() = (fragment as? T) ?: run {
+        main.sendErrorMessage()
+        null
+    }
 
-    protected fun createDialog(context: Context, view: View?, title: String): AlertDialog = AlertDialog.Builder(context).apply {
-        setView(view)
-        setTitle(title)
-    }.show()
+    protected fun createDialog(context: Context, view: View?, title: String): AlertDialog =
+        AlertDialog.Builder(context).apply {
+            setView(view)
+            setTitle(title)
+        }.show()
 
     private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
 
-    internal fun searchEvent() {
-        TODO("Not yet implemented")
+    internal fun searchEvent(searchView: SearchView) {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                getEventFragment()?.getAdapter()?.filter?.filter(newText)
+                return true
+            }
+
+        })
     }
 
     internal fun sortEvents(context: Context) {
         LayoutInflater.from(context).inflate(R.layout.alertdialog_sort, null).let { viewDialog ->
             val alertDialog = createDialog(context, viewDialog, "Sort")
             onClickChoiceSort(viewDialog.alertdialog_sort_name, alertDialog, SortState.NAME)
-            onClickChoiceSort(viewDialog.alertdialog_sort_age_descending, alertDialog, SortState.AGE_DESCENDING)
-            onClickChoiceSort(viewDialog.alertdialog_sort_remaining_days, alertDialog, SortState.DAY_REMAINING)
+            onClickChoiceSort(
+                viewDialog.alertdialog_sort_age_descending,
+                alertDialog,
+                SortState.AGE_DESCENDING
+            )
+            onClickChoiceSort(
+                viewDialog.alertdialog_sort_remaining_days,
+                alertDialog,
+                SortState.DAY_REMAINING
+            )
         }
     }
 

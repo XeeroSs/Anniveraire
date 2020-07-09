@@ -1,7 +1,8 @@
-package com.xeross.anniveraire
+package com.xeross.anniveraire.utils
 
 import android.content.Context
 import android.os.Build
+import com.xeross.anniveraire.R
 import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit

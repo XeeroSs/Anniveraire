@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#0064b7</color>
     <color name="colorAccent">#64c1ff</color>
 
+
+    <color name="colorRed">#d11a2a</color>
+
     <!-- BACKGROUND -->
     <color name="background_light">#fafafa</color>
     <color name="background_gray">#eeeeee</color>

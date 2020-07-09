@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.UtilsDate
+import com.xeross.anniveraire.utils.UtilsDate
 import com.xeross.anniveraire.adapter.EventAdapter
 import com.xeross.anniveraire.controller.BaseFragment
 import com.xeross.anniveraire.model.Event
@@ -24,9 +24,11 @@ class EventFragment : BaseFragment() {
     //private lateinit var eventViewModel: EventViewModel
     private var adapterEvent: EventAdapter? = null
     private var events: ArrayList<Event>? = null
+    private var eventsFull: ArrayList<Event>? = null
     private var sortBy: SortState = SortState.DAY_REMAINING
 
     override fun getFragmentId() = R.layout.fragment_event
+
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -59,6 +61,8 @@ class EventFragment : BaseFragment() {
         this.sortBy = stateSort
     }
 
+    internal fun getAdapter() = adapterEvent
+
     private fun sortList() {
         events?.sortWith(Comparator { event1, event2 ->
             when (sortBy) {
@@ -84,6 +88,7 @@ class EventFragment : BaseFragment() {
 
     private fun updateEventList(event: Event) {
         events?.add(event)
+        adapterEvent?.updateList(events)
         sortList()
     }
 

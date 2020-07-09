@@ -1,17 +1,18 @@
 package com.xeross.anniveraire.controller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.xeross.anniveraire.R
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        setSupportActionBar(toolbar)
 
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
@@ -51,7 +54,8 @@ class MainActivity : AppCompatActivity() {
                     it.createPopupForChoiceEvent(this)
                 }
                 R.id.toolbar_search -> {
-                    it.searchEvent()
+                    val searchView = item.actionView as SearchView
+                    it.searchEvent(searchView)
                 }
                 R.id.toolbar_sort -> {
                     it.sortEvents(this)
