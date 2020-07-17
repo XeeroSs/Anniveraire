@@ -3,99 +3,105 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="10dp"
+    android:theme="@style/AppBottomSheetDialogTheme">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="30dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/im_birthday_cake" />
 
         <Button
-            android:id="@+id/alertdialog_choice_type_event_button_birthday"
+            android:id="@+id/bsd_sort_remaining_days"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:background="@color/colorPrimary"
+            android:background="?android:attr/selectableItemBackground"
             android:ellipsize="end"
+            android:gravity="start"
             android:maxLines="1"
-            android:text="@string/birthday"
+            android:text="@string/remaining_days_text"
             android:textAllCaps="false"
-            android:textColor="@color/colorWhite" />
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="30dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             android:src="@drawable/im_calendar_event" />
 
         <Button
-            android:id="@+id/alertdialog_choice_type_event_button_birthday_event"
+            android:id="@+id/bsd_sort_name"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:background="@color/colorPrimary"
+            android:background="?android:attr/selectableItemBackground"
             android:ellipsize="end"
+            android:gravity="start"
             android:maxLines="1"
-            android:text="@string/bithday_event"
+            android:text="@string/name"
             android:textAllCaps="false"
-            android:textColor="@color/colorWhite" />
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:layout_marginStart="30dp"
             android:scaleType="centerCrop"
             android:src="@drawable/im_champagne" />
 
         <Button
-            android:id="@+id/alertdialog_choice_type_event_button_other_event"
+            android:id="@+id/bsd_sort_age_descending"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:background="@color/colorPrimary"
+            android:background="?android:attr/selectableItemBackground"
             android:ellipsize="end"
+            android:gravity="start"
             android:maxLines="1"
-            android:text="@string/other_event"
+            android:text="@string/descending_age"
             android:textAllCaps="false"
-            android:textColor="@color/colorWhite" />
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp" />
 
     </LinearLayout>
 

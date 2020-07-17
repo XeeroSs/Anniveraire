@@ -1,10 +1,19 @@
 <resources>
 
-    <style name="Anniversaire" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Anniversaire" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+    </style>
+
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/rounded_dialog</item>
     </style>
 
     <style name="Anniversaire.NoActionBar">
@@ -14,6 +23,11 @@
 
     <style name="Anniversaire.Main">
         <item name="android:windowBackground">@color/background_light</item>
+    </style>
+
+    <style name="button_custom" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/colorPrimary</item>
+        <item name="colorButtonNormal">@color/colorPrimaryDark</item>
     </style>
 
 </resources>

@@ -6,6 +6,7 @@
 
 
     <color name="colorRed">#d11a2a</color>
+    <color name="colorGreen">#00cc00</color>
 
     <!-- BACKGROUND -->
     <color name="background_light">#fafafa</color>
@@ -13,8 +14,5 @@
 
     <!-- TEXTVIEW -->
     <color name="colorTextBlack">#8a000000</color>
-
-    <!-- BUTTON -->
-    <color name="button_favorite">#F06292</color>
-    <color name="colorWhite">#ffffff</color>
+    <color name="colorWhite">#FFFFFF</color>
 </resources>

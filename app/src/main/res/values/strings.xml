@@ -17,6 +17,7 @@
     <string name="december">December</string>
     <string name="string_problem">\???</string>
     <string name="format_date">%1$d %2$s %3$d</string>
+    <string name="format_date_with_hour">%1$d %2$s %3$d, %4$d:%5$d</string>
     <string name="firstname_lastname_event">%1$s %2$s</string>
     <string name="format_date_without_year">%1$d %2$s</string>
     <string name="remaining_days">%1$dj</string>
@@ -40,4 +41,8 @@
     <string name="descending_age">Descending Age</string>
     <string name="age">Age</string>
     <string name="enter_the_date">Enter the date</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
 </resources>

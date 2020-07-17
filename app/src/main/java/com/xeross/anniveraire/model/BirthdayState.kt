@@ -1,5 +1,5 @@
 package com.xeross.anniveraire.model
 
-enum class EventState {
+enum class BirthdayState {
     BIRTHDAY, EVENT_BIRTHDAY, OTHER
 }

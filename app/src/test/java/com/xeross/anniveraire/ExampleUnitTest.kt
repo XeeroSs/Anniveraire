@@ -1,8 +1,9 @@
 package com.xeross.anniveraire
 
-import android.os.Build
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.*
@@ -72,10 +73,10 @@ class ExampleUnitTest {
         //dateBefore.year = dateToday.year
         return ChronoUnit.DAYS.between(dateBefore.toInstant(),
                 dateToday.toInstant())
-       /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ChronoUnit.DAYS.between(dateToday.toInstant(),
-                    dateBefore.toInstant())
-        } else (dateToday.time - dateBefore.time) / (1000 * 60 * 60 * 24)*/
+        /*return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             ChronoUnit.DAYS.between(dateToday.toInstant(),
+                     dateBefore.toInstant())
+         } else (dateToday.time - dateBefore.time) / (1000 * 60 * 60 * 24)*/
     }
 
     @Test
@@ -98,6 +99,24 @@ class ExampleUnitTest {
         val date = Date()
         val dateToday = Date(100, 7, 11)
         assertEquals(19, getAgeEventAPI26(date, dateToday))
+    }
+
+    @Test
+    fun getRelativeTime_isCorrect() {
+        val date = Date(100, 3, 22)
+        assertEquals(657, getCountOfDays(date, Date()))
+    }
+
+    private fun getCountOfDays(date: Date, today: Date): Long {
+        val birthday = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(date))
+        val dateToday = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(today))
+        var nextBDay: LocalDate = birthday.withYear(dateToday.year)
+
+        if (nextBDay.isBefore(dateToday) || nextBDay.isEqual(dateToday)) {
+            nextBDay = nextBDay.plusYears(1)
+        }
+
+        return ChronoUnit.DAYS.between(dateToday, nextBDay)
     }
 
     fun getAgeEvent(date: Date, dateToday: Date): Int? {

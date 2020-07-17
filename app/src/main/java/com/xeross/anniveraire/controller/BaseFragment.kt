@@ -9,17 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.date.DateFragment
 import com.xeross.anniveraire.controller.event.EventFragment
 import com.xeross.anniveraire.controller.social.SocialFragment
+import com.xeross.anniveraire.model.Birthday
+import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
 import com.xeross.anniveraire.utils.UtilsDate.getDateInString
-import kotlinx.android.synthetic.main.alertdialog_choice_type_event.view.*
-import kotlinx.android.synthetic.main.alertdialog_sort.view.*
+import kotlinx.android.synthetic.main.bsd_choice_sort.view.*
+import kotlinx.android.synthetic.main.bsd_choice_type_event.view.*
+import kotlinx.android.synthetic.main.bsd_confirm.view.*
+import kotlinx.android.synthetic.main.bsd_item_selected.view.*
 import java.util.*
 
 abstract class BaseFragment : Fragment() {
@@ -33,9 +37,9 @@ abstract class BaseFragment : Fragment() {
     abstract fun getFragmentId(): Int
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(getFragmentId(), container, false)
         dateToday = Date()
@@ -53,39 +57,23 @@ abstract class BaseFragment : Fragment() {
         return root
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+    }
+
     protected fun getDateToday() = dateToday
 
     protected fun setFragment(fragment: BaseFragment) {
         this.fragment = fragment
     }
 
-    internal fun createPopupForChoiceEvent(context: Context) {
-        LayoutInflater.from(context).inflate(R.layout.alertdialog_choice_type_event, null)
-            .let { viewDialog ->
-                val alertDialog = createDialog(context, viewDialog, "Event type")
-
-                viewDialog.alertdialog_choice_type_event_button_birthday.setOnClickListener {
-                    getEventFragment()?.createPopupForBirthday(context)
-                    alertDialog.dismiss()
-                }
-                viewDialog.alertdialog_choice_type_event_button_birthday_event.setOnClickListener {
-                    getEventFragment()?.createPopupForBirthdayEventOrOther(context, false)
-                    alertDialog.dismiss()
-                }
-                viewDialog.alertdialog_choice_type_event_button_other_event.setOnClickListener {
-                    getEventFragment()?.createPopupForBirthdayEventOrOther(context, true)
-                    alertDialog.dismiss()
-                }
-            }
-    }
-
     protected fun onClickDatePicker(editText: EditText, context: Context) {
         editText.text = getDateInString(calendar.time).toEditable()
         editText.setOnClickListener {
             DatePickerDialog(
-                context, datePickerDialog, calendar
+                    context, datePickerDialog, calendar
                     .get(Calendar.YEAR), calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
+                    calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
     }
@@ -108,12 +96,6 @@ abstract class BaseFragment : Fragment() {
         null
     }
 
-    protected fun createDialog(context: Context, view: View?, title: String): AlertDialog =
-        AlertDialog.Builder(context).apply {
-            setView(view)
-            setTitle(title)
-        }.show()
-
     private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
 
     internal fun searchEvent(searchView: SearchView) {
@@ -129,25 +111,90 @@ abstract class BaseFragment : Fragment() {
     }
 
     internal fun sortEvents(context: Context) {
-        LayoutInflater.from(context).inflate(R.layout.alertdialog_sort, null).let { viewDialog ->
-            val alertDialog = createDialog(context, viewDialog, "Sort")
-            onClickChoiceSort(viewDialog.alertdialog_sort_name, alertDialog, SortState.NAME)
-            onClickChoiceSort(
-                viewDialog.alertdialog_sort_age_descending,
-                alertDialog,
-                SortState.AGE_DESCENDING
-            )
-            onClickChoiceSort(
-                viewDialog.alertdialog_sort_remaining_days,
-                alertDialog,
-                SortState.DAY_REMAINING
-            )
+        LayoutInflater.from(context).inflate(R.layout.bsd_choice_sort, null).let { viewDialog ->
+            val bottomSheetDialog = createBSD(context, viewDialog)
+            onClickChoiceSort(viewDialog.bsd_sort_name, bottomSheetDialog, SortState.NAME)
+            onClickChoiceSort(viewDialog.bsd_sort_age_descending, bottomSheetDialog, SortState.AGE_DESCENDING)
+            onClickChoiceSort(viewDialog.bsd_sort_remaining_days, bottomSheetDialog, SortState.DAY_REMAINING)
         }
     }
 
-    private fun onClickChoiceSort(view: Button, alertDialog: AlertDialog, sortState: SortState) {
+    private fun onClickChoiceSort(view: Button, bottomSheetDialog: BottomSheetDialog, sortState: SortState) {
         view.setOnClickListener {
-            getEventFragment()?.onClickChoiceSort(alertDialog, sortState)
+            getEventFragment()?.onClickChoiceSort(bottomSheetDialog, sortState)
         }
     }
+
+    internal fun createBSDChoiceEvents(context: Context) {
+        layoutInflater.inflate(R.layout.bsd_choice_type_event, null).let {
+
+            val bottomSheetDialog = createBSD(context, it)
+
+            it.bsd_choice_type_event_button_birthday.setOnClickListener {
+                getEventFragment()?.createBSDBirthday(context)
+                bottomSheetDialog.dismiss()
+            }
+            it.bsd_choice_type_event_button_birthday_event.setOnClickListener {
+                getEventFragment()?.createPopupForBirthdayEventOrOther(context, false)
+                bottomSheetDialog.dismiss()
+            }
+            it.bsd_choice_type_event_button_other_event.setOnClickListener {
+                getEventFragment()?.createPopupForBirthdayEventOrOther(context, true)
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+    }
+
+    internal fun createBSDItemSelected(context: Context, birthday: Birthday) {
+        layoutInflater.inflate(R.layout.bsd_item_selected, null).run {
+
+            val bottomSheetDialog = createBSD(context, this)
+
+            bsd_item_selected_edit.setOnClickListener {
+                when (getFragmentId()) {
+                    R.layout.fragment_event -> {
+                        getEventFragment()?.let {
+                            when (birthday.state) {
+                                BirthdayState.BIRTHDAY -> it.createBSDBirthday(context)
+                                BirthdayState.EVENT_BIRTHDAY -> it.createPopupForBirthdayEventOrOther(context, false)
+                                BirthdayState.OTHER -> it.createPopupForBirthdayEventOrOther(context, true)
+                            }
+                        }
+                    }
+                }
+                bottomSheetDialog.dismiss()
+            }
+            bsd_item_selected_delete.setOnClickListener {
+                createBSDConfirm(context, birthday)
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+    }
+
+    internal fun createBSDConfirm(context: Context, birthday: Birthday) {
+        layoutInflater.inflate(R.layout.bsd_confirm, null).let {
+
+            val bottomSheetDialog = createBSD(context, it)
+
+            it.bsd_confirm_yes.setOnClickListener {
+                // do stuff (room) ..
+                bottomSheetDialog.dismiss()
+                getEventFragment()?.getList()?.remove(birthday)
+                getEventFragment()?.getAdapter()?.notifyDataSetChanged()
+            }
+            it.bsd_confirm_no.setOnClickListener {
+                bottomSheetDialog.dismiss()
+                createBSDItemSelected(context, birthday)
+            }
+        }
+
+    }
+
+    private fun createBSD(context: Context, view: View) =
+            BottomSheetDialog(context).apply {
+                setContentView(view)
+                show()
+            }
 }
