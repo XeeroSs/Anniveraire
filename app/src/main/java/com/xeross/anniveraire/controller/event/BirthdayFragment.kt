@@ -23,7 +23,7 @@ import kotlin.Comparator
 import kotlin.collections.ArrayList
 
 
-class EventFragment : BaseFragment(), ClickListener<Birthday> {
+class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
     //private lateinit var eventViewModel: EventViewModel
     private var adapterEvent: BirthdayAdapter? = null

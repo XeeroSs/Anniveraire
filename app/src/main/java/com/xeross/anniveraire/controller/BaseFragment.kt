@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.date.DateFragment
+import com.xeross.anniveraire.controller.event.BirthdayFragment
 import com.xeross.anniveraire.controller.event.EventFragment
 import com.xeross.anniveraire.controller.social.SocialFragment
 import com.xeross.anniveraire.model.Birthday
@@ -85,7 +86,7 @@ abstract class BaseFragment : Fragment() {
 
     private fun getSocialFragment() = getFragment<SocialFragment>()
     private fun getDateFragment() = getFragment<DateFragment>()
-    private fun getEventFragment() = getFragment<EventFragment>()
+    private fun getEventFragment() = getFragment<BirthdayFragment>()
 
     private inline fun <reified T : BaseFragment> getFragment() = (fragment as? T) ?: run {
         main.sendErrorMessage()
