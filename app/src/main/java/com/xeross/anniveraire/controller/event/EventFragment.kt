@@ -26,25 +26,25 @@ import kotlin.collections.ArrayList
 class EventFragment : BaseFragment(), ClickListener<Birthday> {
 
     //private lateinit var eventViewModel: EventViewModel
-    private var adapterBirthday: BirthdayAdapter? = null
-    private var birthdays: ArrayList<Birthday>? = null
-    private var eventsFull: ArrayList<Birthday>? = null
+    private var adapterEvent: BirthdayAdapter? = null
+    private val birthdays = ArrayList<Birthday>()
+    private val birthdaysFull = ArrayList<Birthday>()
     private var sortBy: SortState = SortState.DAY_REMAINING
 
     override fun getFragmentId() = R.layout.fragment_event
-
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         this.setFragment(this)
         initializeRecyclerView()
-        birthdays?.run {
+        birthdays.run {
             addBirthday("Quentin", "Masini", Date(101, 5, 14), BirthdayState.BIRTHDAY)
             addBirthday("Laurent", "Paul", Date(109, 11, 1), BirthdayState.BIRTHDAY)
             addBirthday("Bob", "Jean", Date(110, 3, 22), BirthdayState.BIRTHDAY)
             addBirthday("Noël", "", Date(0, 11, 25), BirthdayState.OTHER)
+            sortListWith()
         }
-        sortList()
+        birthdaysFull.addAll(birthdays)
     }
 
     private fun ArrayList<Birthday>.addBirthday(
@@ -55,29 +55,36 @@ class EventFragment : BaseFragment(), ClickListener<Birthday> {
     ): Boolean {
         return add(Birthday(firstName, lastName, date, "", birthdayState))
     }
-
     internal fun getList() = birthdays
 
     private fun setSortBy(stateSort: SortState) {
         this.sortBy = stateSort
     }
 
-    internal fun getAdapter() = adapterBirthday
+    internal fun getAdapter() = adapterEvent
 
     private fun sortList() {
-        birthdays?.sortWith(Comparator { event1, event2 ->
+        birthdays.run {
+            clear()
+            addAll(birthdaysFull)
+            sortListWith()
+            adapterEvent?.notifyDataSetChanged()
+        }
+    }
+
+    private fun ArrayList<Birthday>.sortListWith() {
+        sortWith(Comparator { event1, event2 ->
             when (sortBy) {
                 SortState.DAY_REMAINING -> (UtilsDate.getRemainingDays(
-                    this.getDateToday(), event1.dateBirth
-                )
-                        - UtilsDate.getRemainingDays(this.getDateToday(), event2.dateBirth))
+                    getDateToday(),
+                    event1.dateBirth
+                ) - UtilsDate.getRemainingDays(getDateToday(), event2.dateBirth))
                 SortState.NAME -> "${event1.firstName} ${event1.lastName}".compareTo("${event2.firstName} ${event2.lastName}")
                 SortState.AGE_DESCENDING -> {
                     compareAgeAscending(event1, event2)
                 }
             }
         })
-        adapterBirthday?.notifyDataSetChanged()
     }
 
     private fun compareAgeAscending(birthday1: Birthday, birthday2: Birthday): Int {
@@ -90,20 +97,19 @@ class EventFragment : BaseFragment(), ClickListener<Birthday> {
     }
 
     private fun updateEventList(birthday: Birthday) {
-        birthdays?.add(birthday)
-        adapterBirthday?.updateList(birthdays)
+        birthdaysFull.add(birthday)
         sortList()
     }
 
     private fun initializeRecyclerView() {
-        birthdays = ArrayList()
-        adapterBirthday = BirthdayAdapter(context, birthdays, this.getDateToday(), this)
-        fragment_event_list.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            itemAnimator = DefaultItemAnimator()
-            adapter = adapterBirthday
-
+        context?.let {
+            adapterEvent = BirthdayAdapter(birthdays, birthdaysFull, it, this.getDateToday(), this)
+            fragment_event_list.apply {
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(context)
+                itemAnimator = DefaultItemAnimator()
+                adapter = adapterEvent
+            }
         }
     }
 

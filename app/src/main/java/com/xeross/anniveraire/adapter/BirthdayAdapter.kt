@@ -4,8 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Filter
-import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -18,89 +16,10 @@ import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.utils.UtilsDate
 import kotlinx.android.synthetic.main.birthday_cell.view.*
 import java.util.*
-import kotlin.collections.ArrayList
 
-class BirthdayAdapter(
-    private val context: Context?,
-    private var birthdays: ArrayList<Birthday>?,
-    private val dateToday: Date,
-    private val clickListener: ClickListener<Birthday>
-) : RecyclerView.Adapter<BirthdayAdapter.EventViewHolder>(), Filterable {
+class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList<Birthday>, context: Context, dateToday: Date, clickListener: ClickListener<Birthday>) : BaseAdapter<BirthdayAdapter.ViewHolder, Birthday>(objectList, objectListFull, context, dateToday, clickListener) {
 
-    private var eventsFiltered = birthdays
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        EventViewHolder(LayoutInflater.from(context).inflate(R.layout.birthday_cell, parent, false))
-
-    override fun getItemCount() = birthdays?.let { return it.size } ?: 0
-
-    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
-        context?.let { contextMain ->
-            birthdays?.let {
-                val birthday = it[position]
-                updateItem(contextMain, birthday, holder)
-                onClick(holder, birthday)
-            }
-        }
-    }
-
-    fun updateList(birthdays: ArrayList<Birthday>?) {
-        eventsFiltered = birthdays
-    }
-
-    private fun onClick(
-        holder: EventViewHolder,
-        birthday: Birthday
-    ) {
-        holder.cardView.setOnLongClickListener {
-            clickListener.onLongClick(birthday)
-            true
-        }
-    }
-
-    private fun updateItem(contextMain: Context, birthday: Birthday, holder: EventViewHolder) {
-        holder.nameEvent.text = if (birthday.lastName == "") birthday.firstName else
-            contextMain.getString(
-                R.string.firstname_lastname_event,
-                birthday.firstName,
-                birthday.lastName
-            )
-        holder.remainingDaysEvent.text = contextMain.getString(
-            R.string.remaining_days,
-            UtilsDate.getRemainingDays(dateToday, birthday.dateBirth)
-        )
-        when (birthday.state) {
-            BirthdayState.BIRTHDAY -> {
-                eventBirthday(holder, birthday, contextMain, R.drawable.im_birthday_cake)
-            }
-            BirthdayState.EVENT_BIRTHDAY -> {
-                eventBirthday(holder, birthday, contextMain, R.drawable.im_calendar_event)
-                holder.remainingDaysEvent.setTextColor(contextMain.resources.getColor(R.color.colorPrimary))
-            }
-            BirthdayState.OTHER -> {
-                Glide.with(contextMain).load(R.drawable.im_champagne).into(holder.imageEvent)
-                holder.dateEvent.text =
-                    UtilsDate.getDateWithoutYearInString(birthday.dateBirth, contextMain)
-                holder.ageEvent.visibility = View.GONE
-            }
-        }
-    }
-
-    private fun eventBirthday(
-        holder: EventViewHolder,
-        birthday: Birthday,
-        contextMain: Context,
-        imageDrawable: Int
-    ) {
-        Glide.with(contextMain).load(imageDrawable).into(holder.imageEvent)
-        holder.dateEvent.text = UtilsDate.getDateInString(birthday.dateBirth, contextMain)
-        holder.ageEvent.text = contextMain.getString(
-            R.string.age_event,
-            UtilsDate.getAgeEvent(dateToday, birthday.dateBirth).plus(1)
-        )
-    }
-
-    class EventViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageEvent: ImageView = itemView.birthday_cell_image
         val nameEvent: TextView = itemView.birthday_cell_name
         val dateEvent: TextView = itemView.birthday_cell_date
@@ -109,36 +28,61 @@ class BirthdayAdapter(
         val remainingDaysEvent: TextView = itemView.birthday_cell_remaining_days
     }
 
-    override fun getFilter(): Filter? {
-        return object : Filter() {
-            override fun performFiltering(charSequence: CharSequence): FilterResults {
-                val filterPattern =
-                    charSequence.toString().toLowerCase(Locale.getDefault()).trim { it <= ' ' }
-                val filteredList: MutableList<Birthday> = ArrayList()
-                if (filterPattern.isEmpty()) {
-                    birthdays?.let { filteredList.addAll(it) }
-                } else {
-                    eventsFiltered?.let {
-                        for (event in it) {
-                            if (event.firstName.contains(charSequence) ||
-                                event.lastName.contains(charSequence)
-                                || event.dateBirth.toString().contains(charSequence)
-                            ) {
-                                filteredList.add(event)
-                            }
-                        }
-                    }
-                }
-                val filterResults = FilterResults()
-                filterResults.values = filteredList
-                return filterResults
-            }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+            ViewHolder(LayoutInflater.from(context).inflate(R.layout.birthday_cell, parent, false))
 
-            override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-                birthdays?.clear()
-                birthdays?.addAll(filterResults.values as List<Birthday>)
-                notifyDataSetChanged()
-            }
+    override fun filterItem(dObject: Birthday, filterPattern: String) =
+            (dObject.firstName.containsString(filterPattern) ||
+                    dObject.lastName.containsString(filterPattern)
+                    || dObject.dateBirth.toString().containsString(filterPattern))
+
+    override fun updateItem(holder: ViewHolder, dObject: Birthday) {
+        setName(holder, dObject)
+        setRemainingDays(holder, dObject.dateBirth)
+        when (dObject.state) {
+            BirthdayState.BIRTHDAY -> setBirthdayItem(holder, dObject)
+            BirthdayState.EVENT_BIRTHDAY -> setEventBirthdayItem(holder, dObject)
+            BirthdayState.OTHER -> setOtherItem(holder, dObject)
         }
+    }
+
+    private fun setOtherItem(holder: ViewHolder, dObject: Birthday) {
+        Glide.with(context).load(R.drawable.im_champagne).into(holder.imageEvent)
+        holder.dateEvent.text = UtilsDate.getDateWithoutYearInString(dObject.dateBirth, context)
+        holder.ageEvent.visibility = View.GONE
+    }
+
+    private fun setEventBirthdayItem(holder: ViewHolder, dObject: Birthday) {
+        eventBirthday(holder, dObject, R.drawable.im_calendar_event)
+        holder.remainingDaysEvent.setTextColor(context.resources.getColor(R.color.colorPrimary))
+    }
+
+    private fun setBirthdayItem(holder: ViewHolder, dObject: Birthday) {
+        eventBirthday(holder, dObject, R.drawable.im_birthday_cake)
+    }
+
+    private fun setName(holder: ViewHolder, dObject: Birthday) {
+        holder.nameEvent.text = if (dObject.lastName == "") dObject.firstName else context.getString(R.string.firstname_lastname_event, dObject.firstName, dObject.lastName)
+    }
+
+    private fun setRemainingDays(holder: ViewHolder, date: Date) {
+        holder.remainingDaysEvent.text = context.getString(R.string.remaining_days, UtilsDate.getRemainingDays(dateToday, date))
+    }
+
+    private fun eventBirthday(holder: ViewHolder, birthday: Birthday, imageDrawable: Int) {
+        Glide.with(context).load(imageDrawable).into(holder.imageEvent)
+        holder.dateEvent.text = UtilsDate.getDateInString(birthday.dateBirth, context)
+        holder.ageEvent.text = context.getString(R.string.age_event, UtilsDate.getAgeEvent(dateToday, birthday.dateBirth).plus(1))
+    }
+
+    override fun onClick(holder: ViewHolder, dObject: Birthday) {
+        holder.cardView.setOnLongClickListener {
+            clickListener.onLongClick(dObject)
+            true
+        }
+
+        /* holder.cardView.setOnClickListener {
+             clickListener.onClick(dObject)
+         }*/
     }
 }

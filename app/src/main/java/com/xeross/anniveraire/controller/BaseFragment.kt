@@ -57,10 +57,6 @@ abstract class BaseFragment : Fragment() {
         return root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
-
     protected fun getDateToday() = dateToday
 
     protected fun setFragment(fragment: BaseFragment) {
