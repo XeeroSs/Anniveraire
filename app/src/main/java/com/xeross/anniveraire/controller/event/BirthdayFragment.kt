@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.BirthdayAdapter
-import com.xeross.anniveraire.controller.BaseFragment
+import com.xeross.anniveraire.controller.BaseEventFragment
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.BirthdayState
@@ -23,7 +23,7 @@ import kotlin.Comparator
 import kotlin.collections.ArrayList
 
 
-class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
+class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
 
     //private lateinit var eventViewModel: EventViewModel
     private var adapterEvent: BirthdayAdapter? = null
@@ -32,29 +32,32 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
     private var sortBy: SortState = SortState.DAY_REMAINING
 
     override fun getFragmentId() = R.layout.fragment_event
+    override fun setFragment() = this
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        this.setFragment(this)
         initializeRecyclerView()
+        // TEST
         birthdays.run {
             addBirthday("Quentin", "Masini", Date(101, 5, 14), BirthdayState.BIRTHDAY)
-            addBirthday("Laurent", "Paul", Date(109, 11, 1), BirthdayState.BIRTHDAY)
-            addBirthday("Bob", "Jean", Date(110, 3, 22), BirthdayState.BIRTHDAY)
+            addBirthday("1", "2", Date(109, 11, 1), BirthdayState.BIRTHDAY)
+            addBirthday("3", "4", Date(110, 3, 22), BirthdayState.BIRTHDAY)
             addBirthday("Noël", "", Date(0, 11, 25), BirthdayState.OTHER)
+            // Sort List
             sortListWith()
         }
         birthdaysFull.addAll(birthdays)
     }
 
     private fun ArrayList<Birthday>.addBirthday(
-        firstName: String,
-        lastName: String,
-        date: Date,
-        birthdayState: BirthdayState
+            firstName: String,
+            lastName: String,
+            date: Date,
+            birthdayState: BirthdayState
     ): Boolean {
         return add(Birthday(firstName, lastName, date, "", birthdayState))
     }
+
     internal fun getList() = birthdays
 
     private fun setSortBy(stateSort: SortState) {
@@ -76,8 +79,8 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
         sortWith(Comparator { event1, event2 ->
             when (sortBy) {
                 SortState.DAY_REMAINING -> (UtilsDate.getRemainingDays(
-                    getDateToday(),
-                    event1.dateBirth
+                        getDateToday(),
+                        event1.dateBirth
                 ) - UtilsDate.getRemainingDays(getDateToday(), event2.dateBirth))
                 SortState.NAME -> "${event1.firstName} ${event1.lastName}".compareTo("${event2.firstName} ${event2.lastName}")
                 SortState.AGE_DESCENDING -> {
@@ -129,17 +132,17 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
             view.bsd_birthday_button_add.setOnClickListener {
                 if (view.bsd_birthday_edittext_date.text!!.isEmpty() ||
-                    view.bsd_birthday_edittext_lastname.text!!.isEmpty() ||
-                    view.bsd_birthday_edittext_name.text!!.isEmpty()
+                        view.bsd_birthday_edittext_lastname.text!!.isEmpty() ||
+                        view.bsd_birthday_edittext_name.text!!.isEmpty()
                 ) {
                     main.sendMissingInformationMessage()
                     return@setOnClickListener
                 }
 
                 val event = Birthday(
-                    firstName = view.bsd_birthday_edittext_name.text!!.toString(),
-                    lastName = view.bsd_birthday_edittext_lastname.text!!.toString(),
-                    dateBirth = UtilsDate.getStringInDate(view.bsd_birthday_edittext_date.text!!.toString())
+                        firstName = view.bsd_birthday_edittext_name.text!!.toString(),
+                        lastName = view.bsd_birthday_edittext_lastname.text!!.toString(),
+                        dateBirth = UtilsDate.getStringInDate(view.bsd_birthday_edittext_date.text!!.toString())
                 )
 
                 updateEventList(event)
@@ -158,7 +161,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
             view.bsd_event_other_button_add.setOnClickListener {
                 if (view.bsd_event_other_edittext_date.text!!.isEmpty() ||
-                    view.bsd_event_other_edittext_name.text!!.isEmpty()
+                        view.bsd_event_other_edittext_name.text!!.isEmpty()
                 ) {
                     main.sendMissingInformationMessage()
                     return@setOnClickListener
@@ -166,15 +169,15 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
                 val event = if (!isOther) {
                     Birthday(
-                        firstName = view.bsd_event_other_edittext_name.text!!.toString(),
-                        state = BirthdayState.EVENT_BIRTHDAY,
-                        dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
+                            firstName = view.bsd_event_other_edittext_name.text!!.toString(),
+                            state = BirthdayState.EVENT_BIRTHDAY,
+                            dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
                     )
                 } else {
                     Birthday(
-                        firstName = view.bsd_event_other_edittext_name.text!!.toString(),
-                        state = BirthdayState.OTHER,
-                        dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
+                            firstName = view.bsd_event_other_edittext_name.text!!.toString(),
+                            state = BirthdayState.OTHER,
+                            dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
                     )
                 }
 
@@ -185,13 +188,13 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
     }
 
     private fun createBSD(context: Context, view: View) =
-        BottomSheetDialog(context).apply {
-            setContentView(view)
-            show()
-        }
+            BottomSheetDialog(context).apply {
+                setContentView(view)
+                show()
+            }
 
     override fun onClick(o: Birthday) {
-        /** Nothing**/
+        /**Nothing**/
     }
 
     override fun onLongClick(o: Birthday) {

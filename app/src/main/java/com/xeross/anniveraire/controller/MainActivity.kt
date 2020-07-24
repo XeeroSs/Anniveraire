@@ -37,11 +37,11 @@ class MainActivity : AppCompatActivity() {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_date,
-                R.id.navigation_event,
-                R.id.navigation_social
-            )
+                setOf(
+                        R.id.navigation_date,
+                        R.id.navigation_event,
+                        R.id.navigation_social
+                )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
@@ -51,14 +51,20 @@ class MainActivity : AppCompatActivity() {
         baseFragment?.let {
             when (item.itemId) {
                 R.id.toolbar_add -> {
-                    it.createBSDChoiceEvents(this)
+                    if (it is BaseEventFragment) {
+                        it.createBSDChoiceEvents(this)
+                    }
                 }
                 R.id.toolbar_search -> {
-                    val searchView = item.actionView as SearchView
-                    it.searchEvent(searchView)
+                    if (it is BaseEventFragment) {
+                        val searchView = item.actionView as SearchView
+                        it.searchEvent(searchView)
+                    }
                 }
                 R.id.toolbar_sort -> {
-                    it.sortEvents(this)
+                    if (it is BaseEventFragment) {
+                        it.sortEvents(this)
+                    }
                 }
             }
         }
@@ -67,15 +73,15 @@ class MainActivity : AppCompatActivity() {
 
     fun sendErrorMessage() {
         Toast.makeText(
-            this, getString(R.string.an_error_has_occurred),
-            Toast.LENGTH_SHORT
+                this, getString(R.string.an_error_has_occurred),
+                Toast.LENGTH_SHORT
         ).show()
     }
 
     fun sendMissingInformationMessage() {
         Toast.makeText(
-            this, getString(R.string.missing_information),
-            Toast.LENGTH_SHORT
+                this, getString(R.string.missing_information),
+                Toast.LENGTH_SHORT
         ).show()
     }
 }

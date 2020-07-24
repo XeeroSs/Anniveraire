@@ -7,4 +7,5 @@ class SocialFragment : BaseFragment() {
 
     private lateinit var socialViewModel: SocialViewModel
     override fun getFragmentId() = R.layout.fragment_social
+    override fun setFragment() = this
 }

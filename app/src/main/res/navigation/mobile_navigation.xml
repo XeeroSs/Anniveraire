@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_event"
-        android:name="com.xeross.anniveraire.controller.event.EventBirthdayFragment"
+        android:name="com.xeross.anniveraire.controller.event.BirthdayFragment"
         android:label="@string/title_birthday"
         tools:layout="@layout/fragment_event" />
 
