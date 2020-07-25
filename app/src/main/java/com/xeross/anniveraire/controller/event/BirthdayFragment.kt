@@ -2,7 +2,6 @@ package com.xeross.anniveraire.controller.event
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,8 +14,6 @@ import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
 import com.xeross.anniveraire.utils.UtilsDate
-import kotlinx.android.synthetic.main.bsd_birthday.view.*
-import kotlinx.android.synthetic.main.bsd_event_and_other.view.*
 import kotlinx.android.synthetic.main.fragment_event.*
 import java.util.*
 import kotlin.Comparator
@@ -66,7 +63,7 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
 
     internal fun getAdapter() = adapterEvent
 
-    private fun sortList() {
+    internal fun sortList() {
         birthdays.run {
             clear()
             addAll(birthdaysFull)
@@ -99,7 +96,7 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
         } ?: (ageEvent1 - ageEvent2)
     }
 
-    private fun updateEventList(birthday: Birthday) {
+    fun updateEventList(birthday: Birthday) {
         birthdaysFull.add(birthday)
         sortList()
     }
@@ -117,74 +114,9 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
     }
 
     internal fun onClickChoiceSort(bottomSheetDialog: BottomSheetDialog, sortState: SortState) {
-        setSortBy(sortState)
-        sortList()
+        getEventFragment()?.setSortBy(sortState)
+        getEventFragment()?.sortList()
         bottomSheetDialog.dismiss()
-    }
-
-    internal fun createBSDBirthday(context: Context) {
-        LayoutInflater.from(context).inflate(R.layout.bsd_birthday, null).let { view ->
-
-            datePickerDialog = getDatePicker(view.bsd_birthday_edittext_date)
-            onClickDatePicker(view.bsd_birthday_edittext_date, context)
-
-            val alertDialog = createBSD(context, view)
-
-            view.bsd_birthday_button_add.setOnClickListener {
-                if (view.bsd_birthday_edittext_date.text!!.isEmpty() ||
-                        view.bsd_birthday_edittext_lastname.text!!.isEmpty() ||
-                        view.bsd_birthday_edittext_name.text!!.isEmpty()
-                ) {
-                    main.sendMissingInformationMessage()
-                    return@setOnClickListener
-                }
-
-                val event = Birthday(
-                        firstName = view.bsd_birthday_edittext_name.text!!.toString(),
-                        lastName = view.bsd_birthday_edittext_lastname.text!!.toString(),
-                        dateBirth = UtilsDate.getStringInDate(view.bsd_birthday_edittext_date.text!!.toString())
-                )
-
-                updateEventList(event)
-                alertDialog.dismiss()
-            }
-        }
-    }
-
-    internal fun createPopupForBirthdayEventOrOther(context: Context, isOther: Boolean) {
-        LayoutInflater.from(context).inflate(R.layout.bsd_event_and_other, null).let { view ->
-
-            datePickerDialog = getDatePicker(view.bsd_event_other_edittext_date)
-            onClickDatePicker(view.bsd_event_other_edittext_date, context)
-
-            val alertDialog = createBSD(context, view)
-
-            view.bsd_event_other_button_add.setOnClickListener {
-                if (view.bsd_event_other_edittext_date.text!!.isEmpty() ||
-                        view.bsd_event_other_edittext_name.text!!.isEmpty()
-                ) {
-                    main.sendMissingInformationMessage()
-                    return@setOnClickListener
-                }
-
-                val event = if (!isOther) {
-                    Birthday(
-                            firstName = view.bsd_event_other_edittext_name.text!!.toString(),
-                            state = BirthdayState.EVENT_BIRTHDAY,
-                            dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
-                    )
-                } else {
-                    Birthday(
-                            firstName = view.bsd_event_other_edittext_name.text!!.toString(),
-                            state = BirthdayState.OTHER,
-                            dateBirth = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
-                    )
-                }
-
-                updateEventList(event)
-                alertDialog.dismiss()
-            }
-        }
     }
 
     private fun createBSD(context: Context, view: View) =
@@ -198,7 +130,7 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
     }
 
     override fun onLongClick(o: Birthday) {
-        context?.let { createBSDItemSelected(it, o) }
+        context?.let { getBSDHelper()?.itemSelected(o) }
     }
 
 }

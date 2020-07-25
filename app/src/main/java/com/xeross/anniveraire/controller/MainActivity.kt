@@ -36,13 +36,7 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(
-                setOf(
-                        R.id.navigation_date,
-                        R.id.navigation_event,
-                        R.id.navigation_social
-                )
-        )
+        val appBarConfiguration = AppBarConfiguration(setOf(R.id.navigation_date, R.id.navigation_event, R.id.navigation_social))
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
     }
@@ -52,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.toolbar_add -> {
                     if (it is BaseEventFragment) {
-                        it.createBSDChoiceEvents(this)
+                        it.getBSDHelper()?.choiceEvents()
                     }
                 }
                 R.id.toolbar_search -> {
@@ -63,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.toolbar_sort -> {
                     if (it is BaseEventFragment) {
-                        it.sortEvents(this)
+                        it.getBSDHelper()?.sortEvents()
                     }
                 }
             }

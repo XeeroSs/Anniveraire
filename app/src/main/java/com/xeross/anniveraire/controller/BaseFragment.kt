@@ -13,7 +13,7 @@ import java.util.*
 
 abstract class BaseFragment : Fragment() {
 
-    protected lateinit var main: MainActivity
+    lateinit var main: MainActivity
 
     abstract fun getFragmentId(): Int
 
@@ -36,7 +36,7 @@ abstract class BaseFragment : Fragment() {
 
     private fun getSocialFragment() = getFragment<SocialFragment>()
     private fun getDateFragment() = getFragment<DateFragment>()
-    protected fun getEventFragment() = getFragment<BirthdayFragment>()
+    fun getEventFragment() = getFragment<BirthdayFragment>()
 
     private inline fun <reified T : BaseFragment> getFragment() = (setFragment() as? T) ?: run {
         main.sendErrorMessage()
