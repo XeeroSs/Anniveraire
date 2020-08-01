@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "671986515167",
+    "firebase_url": "https://birthday-460b5.firebaseio.com",
+    "project_id": "birthday-460b5",
+    "storage_bucket": "birthday-460b5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671986515167:android:f8549d540214de3eb5fd6a",
+        "android_client_info": {
+          "package_name": "com.xeross.anniveraire"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "671986515167-3t1okd4blekuvi0se29s9h9tu4ci6g67.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.xeross.anniveraire",
+            "certificate_hash": "eaee3b048814c32828710c9486a63b5d25ba078d"
+          }
+        },
+        {
+          "client_id": "671986515167-ilmaqetgn6b7hh81iqo5rsm5uramhui9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCKTESv_nhFww9PCd7giDMENnuFZdBnb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "671986515167-ilmaqetgn6b7hh81iqo5rsm5uramhui9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

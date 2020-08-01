@@ -22,7 +22,6 @@ import kotlin.collections.ArrayList
 
 class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
 
-    //private lateinit var eventViewModel: EventViewModel
     private var adapterEvent: BirthdayAdapter? = null
     private val birthdays = ArrayList<Birthday>()
     private val birthdaysFull = ArrayList<Birthday>()
@@ -40,7 +39,7 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
             addBirthday("1", "2", Date(109, 11, 1), BirthdayState.BIRTHDAY)
             addBirthday("3", "4", Date(110, 3, 22), BirthdayState.BIRTHDAY)
             addBirthday("Noël", "", Date(0, 11, 25), BirthdayState.OTHER)
-            // Sort List
+            // Sort List (Do stuff with room..)
             sortListWith()
         }
         birthdaysFull.addAll(birthdays)
@@ -63,7 +62,7 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
 
     internal fun getAdapter() = adapterEvent
 
-    internal fun sortList() {
+    fun sortList() {
         birthdays.run {
             clear()
             addAll(birthdaysFull)
@@ -118,12 +117,6 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
         getEventFragment()?.sortList()
         bottomSheetDialog.dismiss()
     }
-
-    private fun createBSD(context: Context, view: View) =
-            BottomSheetDialog(context).apply {
-                setContentView(view)
-                show()
-            }
 
     override fun onClick(o: Birthday) {
         /**Nothing**/
