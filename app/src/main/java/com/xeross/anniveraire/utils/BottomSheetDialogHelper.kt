@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.BaseEventFragment
 import com.xeross.anniveraire.controller.event.BirthdayFragment
+import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
@@ -19,25 +20,25 @@ import kotlinx.android.synthetic.main.bsd_confirm.view.*
 import kotlinx.android.synthetic.main.bsd_event_and_other.view.*
 import kotlinx.android.synthetic.main.bsd_item_selected.view.*
 
-class BottomSheetDialogHelper(private val context: Context, private val fragment: BaseEventFragment) {
+class BottomSheetDialogHelper(private val context: Context, private val fragment: BaseEventFragment<*>) {
 
     // ---------- BottomSheetDialog ----------
 
-    fun choiceEvents() {
+    fun choiceEvents(viewModel: BirthdayViewModel?) {
         fragment.layoutInflater.inflate(R.layout.bsd_choice_type_event, null).let {
 
             val bottomSheetDialog = createBSD(it)
 
             it.bsd_choice_type_event_button_birthday.setOnClickListener {
-                if (fragment is BirthdayFragment) birthday(null)
+                if (fragment is BirthdayFragment) birthday(null, viewModel)
                 bottomSheetDialog.dismiss()
             }
             it.bsd_choice_type_event_button_birthday_event.setOnClickListener {
-                if (fragment is BirthdayFragment) birthdayEventOrOther(null, false)
+                if (fragment is BirthdayFragment) birthdayEventOrOther(null, false, viewModel)
                 bottomSheetDialog.dismiss()
             }
             it.bsd_choice_type_event_button_other_event.setOnClickListener {
-                if (fragment is BirthdayFragment) birthdayEventOrOther(null, true)
+                if (fragment is BirthdayFragment) birthdayEventOrOther(null, true, viewModel)
                 bottomSheetDialog.dismiss()
             }
         }
@@ -53,7 +54,7 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
         }
     }
 
-    private fun birthday(birthday: Birthday?) {
+    private fun birthday(birthday: Birthday?, viewModel: BirthdayViewModel?) {
         @Suppress("SimpleRedundantLet")
         val bFragment = fragment.getEventFragment()?.let { it } ?: return
 
@@ -101,7 +102,7 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
         }
     }
 
-    private fun birthdayEventOrOther(birthday: Birthday?, isOther: Boolean) {
+    private fun birthdayEventOrOther(birthday: Birthday?, isOther: Boolean, viewModel: BirthdayViewModel?) {
         @Suppress("SimpleRedundantLet")
         val bFragment = fragment.getEventFragment()?.let { it } ?: return
 
@@ -151,7 +152,7 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
         }
     }
 
-    fun itemSelected(birthday: Birthday) {
+    fun itemSelected(birthday: Birthday, viewModel: BirthdayViewModel?) {
         fragment.layoutInflater.inflate(R.layout.bsd_item_selected, null).run {
 
             val bottomSheetDialog = createBSD(this)
@@ -161,9 +162,9 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
                     R.layout.fragment_event -> {
                         fragment.getEventFragment()?.let {
                             when (birthday.state) {
-                                BirthdayState.BIRTHDAY -> birthday(birthday)
-                                BirthdayState.EVENT_BIRTHDAY -> birthdayEventOrOther(birthday, false)
-                                BirthdayState.OTHER -> birthdayEventOrOther(birthday, true)
+                                BirthdayState.BIRTHDAY -> birthday(birthday, viewModel)
+                                BirthdayState.EVENT_BIRTHDAY -> birthdayEventOrOther(birthday, false, viewModel)
+                                BirthdayState.OTHER -> birthdayEventOrOther(birthday, true, viewModel)
                             }
                         }
                     }
@@ -171,27 +172,28 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
                 bottomSheetDialog.dismiss()
             }
             bsd_item_selected_delete.setOnClickListener {
-                confirm(birthday)
+                confirm(birthday, viewModel)
                 bottomSheetDialog.dismiss()
             }
         }
 
     }
 
-    private fun confirm(birthday: Birthday) {
+    private fun confirm(birthday: Birthday, viewModel: BirthdayViewModel?) {
         fragment.layoutInflater.inflate(R.layout.bsd_confirm, null).let {
 
             val bottomSheetDialog = createBSD(it)
 
             it.bsd_confirm_yes.setOnClickListener {
                 // do stuff (room) ..
+                viewModel?.deleteBirthday(birthday.id)
                 bottomSheetDialog.dismiss()
                 fragment.getEventFragment()?.getList()?.remove(birthday)
                 fragment.getEventFragment()?.getAdapter()?.notifyDataSetChanged()
             }
             it.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog.dismiss()
-                itemSelected(birthday)
+                itemSelected(birthday, viewModel)
             }
         }
 

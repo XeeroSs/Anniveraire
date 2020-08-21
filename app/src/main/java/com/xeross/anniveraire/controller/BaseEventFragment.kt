@@ -9,16 +9,25 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProviders
+import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.utils.BottomSheetDialogHelper
 import com.xeross.anniveraire.utils.UtilsDate
 import java.util.*
 
-abstract class BaseEventFragment : BaseFragment() {
+abstract class BaseEventFragment<VM : ViewModel> : BaseFragment() {
 
+    var viewModel: VM? = null
     private lateinit var calendar: Calendar
     private lateinit var dateToday: Date
     private var bsdHelper: BottomSheetDialogHelper? = null
     lateinit var datePickerDialog: DatePickerDialog.OnDateSetListener
+
+    // ViewModel for Fragment
+    inline fun <reified VM : ViewModel> configureViewModel(viewModelFactory: ViewModelFactory): VM? {
+        return ViewModelProviders.of(this, viewModelFactory).get(VM::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         dateToday = Date()

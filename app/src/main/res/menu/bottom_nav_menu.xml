@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/navigation_date"
-        android:icon="@drawable/ic_calendar_note"
-        android:title="@string/title_event" />
-
-    <item
         android:id="@+id/navigation_event"
         android:icon="@drawable/ic_birthday_cake"
         android:title="@string/title_birthday" />

@@ -11,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.xeross.anniveraire.R
+import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -45,18 +46,18 @@ class MainActivity : AppCompatActivity() {
         baseFragment?.let {
             when (item.itemId) {
                 R.id.toolbar_add -> {
-                    if (it is BaseEventFragment) {
-                        it.getBSDHelper()?.choiceEvents()
+                    if (it is BaseEventFragment<*>) {
+                        it.getBSDHelper()?.choiceEvents(it.viewModel as? BirthdayViewModel?)
                     }
                 }
                 R.id.toolbar_search -> {
-                    if (it is BaseEventFragment) {
+                    if (it is BaseEventFragment<*>) {
                         val searchView = item.actionView as SearchView
                         it.searchEvent(searchView)
                     }
                 }
                 R.id.toolbar_sort -> {
-                    if (it is BaseEventFragment) {
+                    if (it is BaseEventFragment<*>) {
                         it.getBSDHelper()?.sortEvents()
                     }
                 }

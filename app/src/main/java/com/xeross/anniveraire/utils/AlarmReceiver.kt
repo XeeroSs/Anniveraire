@@ -7,20 +7,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.MainActivity
+import com.xeross.anniveraire.utils.Constants.CHANNEL_DESCRIPTION
+import com.xeross.anniveraire.utils.Constants.CHANNEL_ID
+import com.xeross.anniveraire.utils.Constants.CHANNEL_NAME
+import com.xeross.anniveraire.utils.Constants.TEST_ID
 
 class AlarmReceiver : BroadcastReceiver() {
-
-    companion object {
-        const val CHANNEL_ID = "BIRTHDAY_CHANNEL_ID"
-        const val CHANNEL_NAME = "BIRTHDAY_CHANNEL_NAME"
-        const val CHANNEL_DESCRIPTION = "BIRTHDAY_CHANNEL_DESCRIPTION"
-        const val TEST_ID = 20
-    }
 
     override fun onReceive(context: Context?, intent: Intent?) {
         //do stuff with room...

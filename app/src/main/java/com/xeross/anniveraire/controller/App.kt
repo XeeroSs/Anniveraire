@@ -15,6 +15,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        // J'appelle l'alarmManager pour les notifications uniquement lors du lancement de l'application
         initializeAlarmManager()
     }
 

@@ -1,15 +1,12 @@
 package com.xeross.anniveraire.controller
 
-import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.xeross.anniveraire.controller.date.DateFragment
 import com.xeross.anniveraire.controller.event.BirthdayFragment
 import com.xeross.anniveraire.controller.social.SocialFragment
-import java.util.*
 
 abstract class BaseFragment : Fragment() {
 
@@ -35,7 +32,6 @@ abstract class BaseFragment : Fragment() {
     }
 
     private fun getSocialFragment() = getFragment<SocialFragment>()
-    private fun getDateFragment() = getFragment<DateFragment>()
     fun getEventFragment() = getFragment<BirthdayFragment>()
 
     private inline fun <reified T : BaseFragment> getFragment() = (setFragment() as? T) ?: run {

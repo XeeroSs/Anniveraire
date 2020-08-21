@@ -45,4 +45,22 @@
     <string name="edit">Edit</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="log_in">Log In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="message_for_inscription">En vous inscrivant, vos données seront gardées même après la désinstallation de l\'application.</string>
+    <string name="log_in_with_google">Log In With Google</string>
+
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_unknown_error">Failed authentication</string>
+    <string name="error_email_not_found">Email not found</string>
+    <string name="error_username_not_found">Username not found</string>
 </resources>

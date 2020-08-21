@@ -1,26 +1,22 @@
 package com.xeross.anniveraire.controller.event
 
-import android.content.Context
 import android.os.Bundle
-import android.view.View
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.BirthdayAdapter
 import com.xeross.anniveraire.controller.BaseEventFragment
+import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Birthday
-import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
 import com.xeross.anniveraire.utils.UtilsDate
 import kotlinx.android.synthetic.main.fragment_event.*
-import java.util.*
-import kotlin.Comparator
-import kotlin.collections.ArrayList
 
 
-class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
+class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<Birthday> {
 
     private var adapterEvent: BirthdayAdapter? = null
     private val birthdays = ArrayList<Birthday>()
@@ -33,25 +29,25 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         initializeRecyclerView()
-        // TEST
-        birthdays.run {
-            addBirthday("Quentin", "Masini", Date(101, 5, 14), BirthdayState.BIRTHDAY)
-            addBirthday("1", "2", Date(109, 11, 1), BirthdayState.BIRTHDAY)
-            addBirthday("3", "4", Date(110, 3, 22), BirthdayState.BIRTHDAY)
-            addBirthday("Noël", "", Date(0, 11, 25), BirthdayState.OTHER)
-            // Sort List (Do stuff with room..)
-            sortListWith()
+        context?.let { context ->
+            configureViewModel<BirthdayViewModel>(ViewModelFactory(context))?.let {
+                viewModel = it
+                getBirthdaysFromRoom(it)
+            }
         }
-        birthdaysFull.addAll(birthdays)
     }
 
-    private fun ArrayList<Birthday>.addBirthday(
-            firstName: String,
-            lastName: String,
-            date: Date,
-            birthdayState: BirthdayState
-    ): Boolean {
-        return add(Birthday(firstName, lastName, date, "", birthdayState))
+    private fun getBirthdaysFromRoom(it: BirthdayViewModel) {
+        it.getBirthdays()?.observe(viewLifecycleOwner, Observer { birthdayList ->
+            birthdayList?.let { list ->
+                birthdays.run {
+                    addAll(list)
+                    sortListWith()
+                    birthdaysFull.addAll(this)
+                    adapterEvent?.notifyDataSetChanged()
+                }
+            }
+        })
     }
 
     internal fun getList() = birthdays
@@ -96,8 +92,11 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
     }
 
     fun updateEventList(birthday: Birthday) {
-        birthdaysFull.add(birthday)
-        sortList()
+        viewModel?.let {
+            it.createBirthday(birthday)
+            birthdaysFull.add(birthday)
+            sortList()
+        }
     }
 
     private fun initializeRecyclerView() {
@@ -123,7 +122,15 @@ class BirthdayFragment : BaseEventFragment(), ClickListener<Birthday> {
     }
 
     override fun onLongClick(o: Birthday) {
-        context?.let { getBSDHelper()?.itemSelected(o) }
+        context?.let {
+            viewModel?.let {
+                it.getBirthday(o.id)?.observe(this, Observer { birthday ->
+                    birthday?.let { b ->
+                        getBSDHelper()?.itemSelected(b, it)
+                    }
+                })
+            }
+        }
     }
 
 }
