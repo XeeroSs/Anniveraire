@@ -2,6 +2,7 @@ package com.xeross.anniveraire.controller.discussion
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -22,8 +23,11 @@ import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
+import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
 import kotlinx.android.synthetic.main.fragment_event.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
 
@@ -52,15 +56,21 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
                     return@setOnClickListener
                 }
 
-                val discussion = Discussion(System.currentTimeMillis(), view.bsd_discussion_edittext.text.toString())
+                val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString())
 
                 val userId = getCurrentUser()?.uid ?: return@setOnClickListener
 
-                viewModel?.createDiscussion(discussion, userId)
-                Toast.makeText(this, "Discussion create !", Toast.LENGTH_SHORT).show()
-                discussions.clear()
-                getDiscussionsFromUser(userId)
-                alertDialog.dismiss()
+                viewModel?.let { vm ->
+                    vm.getUser(userId).addOnCompleteListener { t ->
+                        t.result?.toObject(User::class.java)?.let { user ->
+                            viewModel?.createDiscussion(discussion, userId, user.discussionsId)
+                            Toast.makeText(this, "Discussion create !", Toast.LENGTH_SHORT).show()
+                            discussions.clear()
+                            getDiscussionsFromUser(userId)
+                            alertDialog.dismiss()
+                        }
+                    }
+                }
             }
         }
     }
@@ -97,7 +107,7 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
 
     private fun initializeRecyclerView() {
         adapterEvent = DiscussionAdapter(discussions, this, this)
-        fragment_event_list?.apply {
+        recyclerview_social.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             itemAnimator = DefaultItemAnimator()
@@ -107,17 +117,18 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
 
     private fun getDiscussionsFromUser(userId: String) {
         viewModel?.let { vm ->
-            vm.getUser(userId).addOnCompleteListener { t ->
-                t.result?.toObject(User::class.java)?.let { user ->
-                    user.discussionId.forEach { dIs ->
-                        vm.getDiscussions(dIs).addOnCompleteListener { taskDiscussion ->
+            vm.getUser(userId).addOnCompleteListener { taskUser ->
+                taskUser.result?.toObject(User::class.java)?.let { user ->
+                    user.discussionsId?.forEach { dId ->
+                        Log.i("----------", dId)
+                        vm.getDiscussions(dId).addOnCompleteListener { taskDiscussion ->
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
+                                adapterEvent?.notifyDataSetChanged()
                             }
                         }
                     }
                 }
-                adapterEvent?.notifyDataSetChanged()
             }
         }
     }

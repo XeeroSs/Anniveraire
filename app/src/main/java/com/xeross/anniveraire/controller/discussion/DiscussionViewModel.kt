@@ -17,7 +17,7 @@ class DiscussionViewModel(private val executor: Executor) : ViewModel() {
     private val databaseInstanceUsers =
             FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
 
-    fun getDiscussions(discussionId: Int) = databaseInstanceDiscussion.document(discussionId.toString()).get()
+    fun getDiscussions(discussionId: String) = databaseInstanceDiscussion.document(discussionId).get()
     fun getUser(userId: String) = databaseInstanceUsers.document(userId).get()
 
     /*fun getDiscussions(): LiveData<List<Discussion>>? {
@@ -31,10 +31,15 @@ class DiscussionViewModel(private val executor: Executor) : ViewModel() {
         return null
     }*/
 
-    fun createDiscussion(discussion: Discussion, userId: String) = executor.execute {
+   private fun updateCountDiscussionsUser(id: String, discussionsId: ArrayList<String>?) {
+        databaseInstanceUsers.document(id).update("discussionsId", discussionsId)
+    }
+
+    fun createDiscussion(discussion: Discussion, userId: String, discussionsId: ArrayList<String>?) = executor.execute {
         discussion.usersId.add(userId)
-        databaseInstanceDiscussion.document().set(discussion).addOnCompleteListener {
-        }.addOnFailureListener {
+        discussionsId?.add(discussion.id)
+        updateCountDiscussionsUser(userId, discussionsId)
+        databaseInstanceDiscussion.document(discussion.id).set(discussion).addOnCompleteListener {
         }
     }
 }

@@ -1,3 +1,6 @@
 package com.xeross.anniveraire.model
 
-data class Discussion(val id: Long = 0, val name: String = "", val usersId: ArrayList<String> = ArrayList())
+import java.util.*
+import kotlin.collections.ArrayList
+
+data class Discussion(val id: String = UUID.randomUUID().toString(), val name: String = "", val usersId: ArrayList<String> = ArrayList())
