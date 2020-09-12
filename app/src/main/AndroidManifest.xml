@@ -13,7 +13,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Anniversaire">
-        <activity android:name=".controller.social.SocialActivity"></activity>
+        <activity android:name=".controller.discussion.DiscussionActivity" />
+        <activity
+            android:name=".controller.login.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:theme="@style/Anniversaire.NoActionBar" />
+        <activity android:name=".controller.social.SocialChatActivity" />
+        <activity android:name=".controller.messages.MessageActivity" />
 
         <receiver android:name=".utils.AlarmReceiver">
             <intent-filter>

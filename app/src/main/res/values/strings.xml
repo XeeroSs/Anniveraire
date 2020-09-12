@@ -63,4 +63,14 @@
     <string name="error_unknown_error">Failed authentication</string>
     <string name="error_email_not_found">Email not found</string>
     <string name="error_username_not_found">Username not found</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_msdcqscain">MsdcqscainActivity</string>
+    <string name="enter_the_name">Enter the name</string>
 </resources>
