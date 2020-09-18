@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.xeross.anniveraire.model.Discussion
+import com.xeross.anniveraire.model.Message
+import com.xeross.anniveraire.model.User
 import java.util.concurrent.Executor
 
 class MessageViewModel(private val executor: Executor) : ViewModel() {
@@ -42,5 +44,9 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
         databaseMessageInstance.document().set(discussion).addOnCompleteListener {
         }.addOnFailureListener {
         }
+    }
+
+    fun createMessageForChat(message: String, discussionId: String, user: User) {
+        databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(user, message))
     }
 }

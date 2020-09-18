@@ -62,8 +62,8 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
             }
 
             // Update image sent ImageView
-            if (message.urlImage != null) {
-                glide.load(message.urlImage)
+            if (message.userSender?.urlImage != null) {
+                glide.load(message.userSender?.urlImage)
                         .into(imageViewSent)
                 imageViewSent.visibility = View.VISIBLE
             } else {

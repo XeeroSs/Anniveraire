@@ -18,11 +18,12 @@ import com.google.firebase.auth.FirebaseUser
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
 import com.xeross.anniveraire.controller.login.LoginActivity
-import com.xeross.anniveraire.controller.social.SocialChatActivity
+import com.xeross.anniveraire.controller.messages.MessageActivity
 import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
+import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
 import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
 import kotlinx.android.synthetic.main.fragment_event.*
@@ -120,7 +121,6 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
             vm.getUser(userId).addOnCompleteListener { taskUser ->
                 taskUser.result?.toObject(User::class.java)?.let { user ->
                     user.discussionsId?.forEach { dId ->
-                        Log.i("----------", dId)
                         vm.getDiscussions(dId).addOnCompleteListener { taskDiscussion ->
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
@@ -134,8 +134,8 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
     }
 
     override fun onClick(o: Discussion) {
-        val intent = Intent(this, SocialChatActivity::class.java)
-        intent.putExtra("ID_DISCUSSION", o.id)
+        val intent = Intent(this, MessageActivity::class.java)
+       intent.putExtra(ID_DISCUSSION, o.id)
         startActivity(intent)
     }
 
