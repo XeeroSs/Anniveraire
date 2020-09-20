@@ -6,11 +6,19 @@
     android:orientation="vertical"
     tools:context=".controller.messages.MessageActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/message_activity_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_alignParentTop="true"
+        android:background="?attr/colorPrimary" />
+
     <LinearLayout
         android:id="@+id/activity_message_chat_recycler_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/activity_message_chat_add_message_container"
+        android:layout_below="@id/message_activity_toolbar"
         android:orientation="vertical">
 
         <!-- RECYCLER VIEW -->

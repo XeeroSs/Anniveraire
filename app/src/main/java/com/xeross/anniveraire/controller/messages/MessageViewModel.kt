@@ -47,6 +47,10 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
     }
 
     fun createMessageForChat(message: String, discussionId: String, user: User) {
-        databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(user, message))
+        databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(userSender = user, message = message))
+    }
+
+    fun createMessageForChat(urlImage: String, message: String, discussionId: String, user: User) {
+        databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(urlImage, user, message))
     }
 }

@@ -1,6 +1,7 @@
 package com.xeross.anniveraire.adapter
 
 import android.graphics.drawable.GradientDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,8 +63,8 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
             }
 
             // Update image sent ImageView
-            if (message.userSender?.urlImage != null) {
-                glide.load(message.userSender?.urlImage)
+            if (message.urlImage != null) {
+                glide.load(message.urlImage)
                         .into(imageViewSent)
                 imageViewSent.visibility = View.VISIBLE
             } else {

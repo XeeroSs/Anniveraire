@@ -2,8 +2,9 @@ package com.xeross.anniveraire.controller.discussion
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,9 +27,6 @@ import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
 import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
-import kotlinx.android.synthetic.main.fragment_event.*
-import java.util.*
-import kotlin.collections.ArrayList
 
 class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
 
@@ -38,6 +36,11 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
 
     private fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu_message, menu)
+        return true
     }
 
     private fun sendMissingInformationMessage() {
@@ -84,6 +87,11 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_discussion)
+        setSupportActionBar(discussion_activity_toolbar)
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setDisplayShowHomeEnabled(true)
+        }
         if (getCurrentUser() == null) {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -133,9 +141,20 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> finish()
+            R.id.toolbar_add -> {
+            }
+            R.id.toolbar_options -> {
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onClick(o: Discussion) {
         val intent = Intent(this, MessageActivity::class.java)
-       intent.putExtra(ID_DISCUSSION, o.id)
+        intent.putExtra(ID_DISCUSSION, o.id)
         startActivity(intent)
     }
 

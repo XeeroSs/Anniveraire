@@ -73,4 +73,8 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_msdcqscain">MsdcqscainActivity</string>
     <string name="enter_the_name">Enter the name</string>
+    <string name="need_permission">Permission needed</string>
+    <string name="missing_permission">Missing Permission</string>
+    <string name="toast_title_no_image_chosen">No image was chosen</string>
+    <string name="title_options">Options</string>
 </resources>
