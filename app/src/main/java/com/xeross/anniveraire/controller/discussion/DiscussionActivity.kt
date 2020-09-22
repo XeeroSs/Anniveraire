@@ -3,24 +3,12 @@ package com.xeross.anniveraire.controller.discussion
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
-import com.xeross.anniveraire.controller.login.LoginActivity
+import com.xeross.anniveraire.controller.base.BaseActivity
 import com.xeross.anniveraire.controller.messages.MessageActivity
-import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
@@ -28,27 +16,11 @@ import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
 import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
 
-class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
+class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
 
     private var viewModel: DiscussionViewModel? = null
     private var adapterEvent: DiscussionAdapter? = null
     private val discussions = ArrayList<Discussion>()
-
-    private fun getCurrentUser(): FirebaseUser? {
-        return FirebaseAuth.getInstance().currentUser
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_menu_message, menu)
-        return true
-    }
-
-    private fun sendMissingInformationMessage() {
-        Toast.makeText(
-                this, getString(R.string.missing_information),
-                Toast.LENGTH_SHORT
-        ).show()
-    }
 
     private fun createBSDDiscussion() {
         LayoutInflater.from(this).inflate(R.layout.bsd_discussion, null).let { view ->
@@ -79,28 +51,13 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
         }
     }
 
-    private fun createBSD(view: View) = BottomSheetDialog(this).apply {
-        setContentView(view)
-        show()
-    }
+    override fun getToolBar() = R.id.toolbar
+
+    override fun getLayoutId() = R.layout.activity_discussion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_discussion)
-        setSupportActionBar(discussion_activity_toolbar)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setDisplayShowHomeEnabled(true)
-        }
-        if (getCurrentUser() == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            return
-        }
-        setSupportActionBar(findViewById(R.id.toolbar))
-        configureViewModel<DiscussionViewModel>(ViewModelFactory(this))?.let {
-            viewModel = it
-        }
+        viewModel = configureViewModel()
         findViewById<FloatingActionButton>(R.id.fab).setOnClickListener {
             createBSDDiscussion()
         }
@@ -109,18 +66,10 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
         getDiscussionsFromUser(userId)
     }
 
-    // ViewModel for Fragment
-    private inline fun <reified VM : ViewModel> configureViewModel(viewModelFactory: ViewModelFactory): VM? {
-        return ViewModelProviders.of(this, viewModelFactory).get(VM::class.java)
-    }
-
     private fun initializeRecyclerView() {
-        adapterEvent = DiscussionAdapter(discussions, this, this)
-        recyclerview_social.apply {
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(context)
-            itemAnimator = DefaultItemAnimator()
-            adapter = adapterEvent
+        DiscussionAdapter(discussions, this, this).let {
+            adapterEvent = it
+            recyclerview_social.setRecyclerViewAdapter(it)
         }
     }
 
@@ -139,17 +88,6 @@ class DiscussionActivity : AppCompatActivity(), ClickListener<Discussion> {
                 }
             }
         }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> finish()
-            R.id.toolbar_add -> {
-            }
-            R.id.toolbar_options -> {
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onClick(o: Discussion) {

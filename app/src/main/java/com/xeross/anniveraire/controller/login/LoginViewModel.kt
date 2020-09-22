@@ -20,8 +20,8 @@ class LoginViewModel(private val executor: Executor) : ViewModel() {
     fun createUser(uid: String, email: String?,
                    username: String?,
                    urlPicture: String?,
-                   discussionId: ArrayList<String>): Task<Void> {
-        val userToCreate = User(uid, email, username, urlPicture, discussionId)
+                   discussionId: ArrayList<String>, discussionRequestId: ArrayList<String>): Task<Void> {
+        val userToCreate = User(uid, email, username, urlPicture, discussionId, discussionRequestId)
         return databaseUsersInstance.document(uid).set(userToCreate)
     }
 

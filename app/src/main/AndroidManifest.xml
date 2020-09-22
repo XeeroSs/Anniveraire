@@ -14,6 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Anniversaire">
+        <activity android:name=".controller.discussion.user.DiscussionUserActivity"></activity>
+        <activity android:name=".controller.discussion.request.DiscussionRequestActivity" />
         <activity android:name=".controller.discussion.DiscussionActivity" />
         <activity
             android:name=".controller.login.LoginActivity"

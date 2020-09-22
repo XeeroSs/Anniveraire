@@ -77,4 +77,5 @@
     <string name="missing_permission">Missing Permission</string>
     <string name="toast_title_no_image_chosen">No image was chosen</string>
     <string name="title_options">Options</string>
+    <string name="enter_the_email">Enter the email</string>
 </resources>

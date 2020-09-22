@@ -5,56 +5,55 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.MessageAdapter
-import com.xeross.anniveraire.injection.ViewModelFactory
+import com.xeross.anniveraire.controller.base.BaseActivity
+import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.Message
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
+import kotlinx.android.synthetic.main.bsd_discussion.view.*
 import kotlinx.android.synthetic.main.message_activity.*
 import permissions.dispatcher.*
 import java.util.*
 
 @RuntimePermissions
-class MessageActivity : AppCompatActivity() {
+class MessageActivity : BaseActivity() {
 
     companion object {
         const val RC_CHOOSE_PHOTO = 1
     }
 
-    private var adapter: MessageAdapter? = null
     private var user: User? = null
     private lateinit var discussionId: String
     private var viewModel: MessageViewModel? = null
     private var uriImageSelected: Uri? = null
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.toolbar_menu_message, menu)
+        return true
+    }
+
+    override fun getToolBar() = R.id.message_activity_toolbar
+
+    override fun getLayoutId() = R.layout.message_activity
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.message_activity)
-        setSupportActionBar(message_activity_toolbar)
-        supportActionBar?.let {
-            it.setDisplayHomeAsUpEnabled(true)
-            it.setDisplayShowHomeEnabled(true)
-        }
         intent.getStringExtra(ID_DISCUSSION)?.let { s ->
-            configureViewModel<MessageViewModel>(ViewModelFactory(this))?.let {
-                viewModel = it
-            }
+            viewModel = configureViewModel()
             discussionId = s
             this.configureRecyclerView(s)
             this.getCurrentUserFromFirestore()
@@ -63,15 +62,36 @@ class MessageActivity : AppCompatActivity() {
         } ?: finish()
     }
 
+    private fun createBSDAddUser() {
+        LayoutInflater.from(this).inflate(R.layout.bsd_discussion, null).let { view ->
+            val alertDialog = createBSD(view)
+
+            view.bsd_discussion_button_add.setOnClickListener {
+                if (view.bsd_discussion_edittext.text?.isEmpty() == true) {
+                    sendMissingInformationMessage()
+                    return@setOnClickListener
+                }
+
+                val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString())
+
+                val userId = getCurrentUser()?.uid ?: return@setOnClickListener
+
+                viewModel?.let { vm ->
+
+                }
+            }
+        }
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
+            R.id.toolbar_add -> {
+            }
+            R.id.toolbar_options -> {
+            }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun getCurrentUser(): FirebaseUser? {
-        return FirebaseAuth.getInstance().currentUser
     }
 
     private fun onClickSendMessage() {
@@ -130,11 +150,6 @@ class MessageActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         onRequestPermissionsResult(requestCode, grantResults)
-    }
-
-    // ViewModel for Fragment
-    inline fun <reified VM : ViewModel> configureViewModel(viewModelFactory: ViewModelFactory): VM? {
-        return ViewModelProviders.of(this, viewModelFactory).get(VM::class.java)
     }
 
     private fun configureRecyclerView(discussionId: String) {

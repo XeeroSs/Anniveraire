@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.xeross.anniveraire.controller.discussion.DiscussionViewModel
+import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestViewModel
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import com.xeross.anniveraire.controller.login.LoginViewModel
 import com.xeross.anniveraire.controller.messages.MessageViewModel
@@ -23,6 +24,7 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
             }
             getViewModel<DiscussionViewModel>(modelClass) -> DiscussionViewModel(executor)
             getViewModel<LoginViewModel>(modelClass) -> LoginViewModel(executor)
+            getViewModel<DiscussionRequestViewModel>(modelClass) -> DiscussionRequestViewModel(executor)
             getViewModel<MessageViewModel>(modelClass) -> MessageViewModel(executor)
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as VM
