@@ -20,7 +20,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.MessageAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
-import com.xeross.anniveraire.model.Discussion
+import com.xeross.anniveraire.controller.discussion.user.DiscussionUserActivity
 import com.xeross.anniveraire.model.Message
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
@@ -72,12 +72,31 @@ class MessageActivity : BaseActivity() {
                     return@setOnClickListener
                 }
 
-                val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString())
+                val userEmail = getCurrentUser()?.email ?: return@setOnClickListener
 
-                val userId = getCurrentUser()?.uid ?: return@setOnClickListener
+                val targetEmail = view.bsd_discussion_edittext.text.toString()
+
+                if (targetEmail.equals(userEmail, true)) {
+                    Toast.makeText(this, getString(R.string.you_cannot_add_yourself), Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
                 viewModel?.let { vm ->
-
+                    vm.getUsers().whereEqualTo("email", targetEmail.toLowerCase(Locale.ROOT)).get().addOnSuccessListener {
+                        it.documents.forEach { d ->
+                            d.toObject(User::class.java)?.let { u ->
+                                val discussionsRequestId = u.discussionsRequestId ?: ArrayList()
+                                discussionsRequestId.add(discussionId)
+                                vm.updateDiscussionsRequestUser(u.id, discussionsRequestId)
+                                Toast.makeText(this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show()
+                                alertDialog.dismiss()
+                                return@addOnSuccessListener
+                            }
+                        }
+                        Toast.makeText(this, getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+                    }.addOnFailureListener {
+                        Toast.makeText(this, getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -87,8 +106,12 @@ class MessageActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.toolbar_add -> {
+                createBSDAddUser()
             }
             R.id.toolbar_options -> {
+                val intent = Intent(this, DiscussionUserActivity::class.java)
+                intent.putExtra(ID_DISCUSSION, discussionId)
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)

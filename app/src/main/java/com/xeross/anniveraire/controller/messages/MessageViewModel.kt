@@ -15,12 +15,15 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
     companion object {
         const val MESSAGE_COLLECTION = "messages"
         const val USERS_COLLECTION = "users"
+        const val DISCUSSION_COLLECTION = "discussions"
     }
 
     private val databaseMessageInstance =
             FirebaseFirestore.getInstance().collection(MESSAGE_COLLECTION)
     private val databaseUsersInstance =
             FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
+    private val databaseDiscussionInstance =
+            FirebaseFirestore.getInstance().collection(DISCUSSION_COLLECTION)
 
     fun getAllMessageForChat(chat: String): Query {
         return databaseMessageInstance.document(chat).collection(MESSAGE_COLLECTION).orderBy("dateCreated")
@@ -29,6 +32,7 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
 
     fun getUser(id: String) = databaseUsersInstance.document(id).get()
 
+    fun getUsers() = databaseUsersInstance
     fun getDiscussions(): LiveData<List<Discussion>>? {
         databaseMessageInstance.get().addOnCompleteListener { task ->
             task.result?.let { querySnapshot ->
@@ -52,5 +56,9 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
 
     fun createMessageForChat(urlImage: String, message: String, discussionId: String, user: User) {
         databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(urlImage, user, message))
+    }
+
+    fun updateDiscussionsRequestUser(id: String, discussionsRequestId: ArrayList<String>) {
+        databaseUsersInstance.document(id).update("discussionsRequestId", discussionsRequestId)
     }
 }

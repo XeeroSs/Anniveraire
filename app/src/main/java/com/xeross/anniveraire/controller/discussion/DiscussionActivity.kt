@@ -32,7 +32,7 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
                     return@setOnClickListener
                 }
 
-                val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString())
+                val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString() )
 
                 val userId = getCurrentUser()?.uid ?: return@setOnClickListener
 

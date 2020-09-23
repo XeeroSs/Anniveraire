@@ -15,8 +15,8 @@ import kotlinx.android.synthetic.main.discussion_cell.view.*
 import java.util.*
 
 class DiscussionAdapter(private val discussions: ArrayList<Discussion>,
-        protected val context: Context,
-        protected val clickListener: ClickListener<Discussion>) : RecyclerView.Adapter<DiscussionAdapter.ViewHolder>() {
+        private val context: Context,
+        private val clickListener: ClickListener<Discussion>) : RecyclerView.Adapter<DiscussionAdapter.ViewHolder>() {
 
     override fun getItemCount() = discussions.size
 
