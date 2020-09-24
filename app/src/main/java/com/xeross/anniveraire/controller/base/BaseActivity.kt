@@ -2,7 +2,6 @@ package com.xeross.anniveraire.controller.base
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -21,8 +20,8 @@ import com.xeross.anniveraire.injection.ViewModelFactory
 
 abstract class BaseActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(getLayoutId())
         if (getCurrentUser() == null) {
             val intent = Intent(this, LoginActivity::class.java)

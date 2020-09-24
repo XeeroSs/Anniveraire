@@ -21,6 +21,7 @@ import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.MessageAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
 import com.xeross.anniveraire.controller.discussion.user.DiscussionUserActivity
+import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.Message
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
@@ -106,7 +107,17 @@ class MessageActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.toolbar_add -> {
-                createBSDAddUser()
+                viewModel?.getDiscussion(discussionId)?.addOnSuccessListener { document ->
+                    document.toObject(Discussion::class.java)?.let { d ->
+                        d.ownerId.takeIf { it != "" }?.let { userId ->
+                            if (userId == getCurrentUser()?.uid) {
+                                createBSDAddUser()
+                                return@addOnSuccessListener
+                            }
+                        }
+                        Toast.makeText(this, getString(R.string.you_cannot_add_anyone), Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             R.id.toolbar_options -> {
                 val intent = Intent(this, DiscussionUserActivity::class.java)

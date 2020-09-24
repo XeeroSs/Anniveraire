@@ -81,4 +81,8 @@
     <string name="you_cannot_add_yourself">You cannot add yourself.</string>
     <string name="request_sent">Request sent.</string>
     <string name="remove_the_user_from_discussion">Remove the user from discussion</string>
+    <string name="you_cannot_add_anyone">You cannot add anyone. You must own of the discussion.</string>
+    <string name="you_are_the_owner_of_the_chat_this_action_will_permanently_delete_the_chat">You are the owner of the chat, this action will permanently delete the chat.</string>
+    <string name="leave_the_discussion_group">Leave the discussion group ?</string>
+    <string name="leave">Leave</string>
 </resources>

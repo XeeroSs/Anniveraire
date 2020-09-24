@@ -31,6 +31,7 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
     }
 
     fun getUser(id: String) = databaseUsersInstance.document(id).get()
+    fun getDiscussion(id: String) = databaseDiscussionInstance.document(id).get()
 
     fun getUsers() = databaseUsersInstance
     fun getDiscussions(): LiveData<List<Discussion>>? {
