@@ -62,9 +62,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected abstract fun getLayoutId(): Int
 
-    protected fun RecyclerView.setRecyclerViewAdapter(adapter: RecyclerView.Adapter<*>) {
+    protected fun RecyclerView.setRecyclerViewAdapter(adapter: RecyclerView.Adapter<*>, isCustom: Boolean = false) {
         setHasFixedSize(true)
-        layoutManager = LinearLayoutManager(context)
+        if (!isCustom) layoutManager = LinearLayoutManager(context)
         itemAnimator = DefaultItemAnimator()
         this.adapter = adapter
     }

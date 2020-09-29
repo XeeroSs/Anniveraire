@@ -7,6 +7,8 @@ import com.xeross.anniveraire.controller.discussion.DiscussionViewModel
 import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestViewModel
 import com.xeross.anniveraire.controller.discussion.user.DiscussionUserViewModel
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
+import com.xeross.anniveraire.controller.gallery.GalleryUserViewModel
+import com.xeross.anniveraire.controller.gallery.GalleryViewModel
 import com.xeross.anniveraire.controller.login.LoginViewModel
 import com.xeross.anniveraire.controller.messages.MessageViewModel
 import com.xeross.anniveraire.database.BirthdayDataRepository
@@ -25,6 +27,8 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
             }
             getViewModel<DiscussionViewModel>(modelClass) -> DiscussionViewModel(executor)
             getViewModel<LoginViewModel>(modelClass) -> LoginViewModel(executor)
+            getViewModel<GalleryUserViewModel>(modelClass) -> GalleryUserViewModel()
+            getViewModel<GalleryViewModel>(modelClass) -> GalleryViewModel(executor)
             getViewModel<DiscussionUserViewModel>(modelClass) -> DiscussionUserViewModel()
             getViewModel<DiscussionRequestViewModel>(modelClass) -> DiscussionRequestViewModel(executor)
             getViewModel<MessageViewModel>(modelClass) -> MessageViewModel(executor)

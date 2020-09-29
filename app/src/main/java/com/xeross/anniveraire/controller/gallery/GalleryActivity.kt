@@ -1,67 +1,78 @@
-package com.xeross.anniveraire.controller.messages
+package com.xeross.anniveraire.controller.gallery
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import com.firebase.ui.firestore.FirestoreRecyclerOptions
-import com.google.firebase.firestore.Query
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.adapter.MessageAdapter
+import com.xeross.anniveraire.adapter.GalleryAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
-import com.xeross.anniveraire.controller.discussion.user.DiscussionUserActivity
-import com.xeross.anniveraire.model.Discussion
-import com.xeross.anniveraire.model.Message
+import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
-import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
+import com.xeross.anniveraire.utils.Constants
+import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
-import kotlinx.android.synthetic.main.message_activity.*
 import permissions.dispatcher.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 @RuntimePermissions
-class MessageActivity : BaseActivity() {
+class GalleryActivity : BaseActivity() {
 
     companion object {
-        const val RC_CHOOSE_PHOTO = 1
+        const val RC_CHOOSE_PHOTO = 2
     }
 
+    private val urls = ArrayList<String>()
+    private var adapter: GalleryAdapter? = null
     private var user: User? = null
-    private lateinit var discussionId: String
-    private var viewModel: MessageViewModel? = null
-    private var uriImageSelected: Uri? = null
+    private lateinit var galleryId: String
+    private var viewModel: GalleryViewModel? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu_group, menu)
         return true
     }
 
-    override fun getToolBar() = R.id.message_activity_toolbar
-
-    override fun getLayoutId() = R.layout.message_activity
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(ID_DISCUSSION)?.let { s ->
-            viewModel = configureViewModel()
-            discussionId = s
-            this.configureRecyclerView(s)
-            this.getCurrentUserFromFirestore()
-            this.onClickSendMessage()
-            this.onClickSendImage()
-        } ?: finish()
+        viewModel = configureViewModel()
+        getCurrentUserFromFirestore()
+        activity_gallery_fab.setOnClickListener {
+            showGalleryWithPermissionCheck()
+        }
+        GalleryAdapter(urls, this).let {
+            adapter = it
+            gallery_activity_recyclerview.layoutManager = GridLayoutManager(this, 3)
+            gallery_activity_recyclerview.setRecyclerViewAdapter(it, true)
+        }
+        getUrls()
     }
+
+    private fun getUrls() {
+        urls.clear()
+        viewModel?.let { vm ->
+            vm.getGallery(galleryId).addOnSuccessListener { d ->
+                d.toObject(Gallery::class.java)?.let { g ->
+                    g.imagesId.forEach {
+                        urls.add(it)
+                        adapter?.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun getToolBar() = R.id.gallery_activity_toolbar
+
+    override fun getLayoutId() = R.layout.activity_gallery
 
     private fun createBSDAddUser() {
         LayoutInflater.from(this).inflate(R.layout.bsd_discussion, null).let { view ->
@@ -86,9 +97,10 @@ class MessageActivity : BaseActivity() {
                     vm.getUsers().whereEqualTo("email", targetEmail.toLowerCase(Locale.ROOT)).get().addOnSuccessListener {
                         it.documents.forEach { d ->
                             d.toObject(User::class.java)?.let { u ->
-                                val discussionsRequestId = u.discussionsRequestId ?: ArrayList()
-                                discussionsRequestId.add(discussionId)
-                                vm.updateDiscussionsRequestUser(u.id, discussionsRequestId)
+                                val galleriesRequestId = u.galleriesRequestId
+                                        ?: java.util.ArrayList()
+                                galleriesRequestId.add(galleryId)
+                                vm.updateGalleriesRequestUser(u.id, galleriesRequestId)
                                 Toast.makeText(this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show()
                                 alertDialog.dismiss()
                                 return@addOnSuccessListener
@@ -107,8 +119,8 @@ class MessageActivity : BaseActivity() {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.toolbar_add -> {
-                viewModel?.getDiscussion(discussionId)?.addOnSuccessListener { document ->
-                    document.toObject(Discussion::class.java)?.let { d ->
+                viewModel?.getGallery(galleryId)?.addOnSuccessListener { document ->
+                    document.toObject(Gallery::class.java)?.let { d ->
                         d.ownerId.takeIf { it != "" }?.let { userId ->
                             if (userId == getCurrentUser()?.uid) {
                                 createBSDAddUser()
@@ -120,51 +132,32 @@ class MessageActivity : BaseActivity() {
                 }
             }
             R.id.toolbar_options -> {
-                val intent = Intent(this, DiscussionUserActivity::class.java)
-                intent.putExtra(ID_DISCUSSION, discussionId)
+                val intent = Intent(this, GalleryUserViewModel::class.java)
+                intent.putExtra(Constants.ID_GALLERY, galleryId)
                 startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun onClickSendMessage() {
-        activity_message_chat_send_button.setOnClickListener {
-            activity_message_chat_message_edit_text.takeIf { !TextUtils.isEmpty(activity_message_chat_message_edit_text.text) }?.let {
-                user?.let { u ->
-                    if (activity_message_chat_image_chosen_preview.drawable == null) {
-                        // SEND A TEXT MESSAGE
-                        viewModel?.createMessageForChat(it.text.toString(), discussionId, u)
-                        it.setText("")
-                    } else {
-                        // SEND A IMAGE + TEXT IMAGE
-                        this.uploadPhotoInFirebaseAndSendMessage(it.text.toString(), discussionId, u)
-                        it.setText("")
-                        activity_message_chat_image_chosen_preview.setImageDrawable(null)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun uploadPhotoInFirebaseAndSendMessage(message: String, discussionId: String, user: User) {
+    private fun uploadPhotoInFirebase(uri: Uri) {
         val uuid = UUID.randomUUID().toString() // GENERATE UNIQUE STRING
         // UPLOAD TO GCS
         val imageRef = FirebaseStorage.getInstance().getReference(uuid)
-        uriImageSelected?.let { uri ->
-            imageRef.putFile(uri).addOnSuccessListener {
-                imageRef.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
-                    // SAVE MESSAGE IN FIRESTORE
-                    viewModel?.createMessageForChat(pathImageSavedInFirebase.toString(), message,
-                            discussionId, user)
+        imageRef.putFile(uri).addOnSuccessListener {
+            imageRef.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
+                // SAVE MESSAGE IN FIRESTORE
+                viewModel?.let { vm ->
+                    vm.getGallery(galleryId).addOnSuccessListener { dd ->
+                        dd.toObject(Gallery::class.java)?.let { g ->
+                            val imagesId = g.imagesId
+                            imagesId.add(pathImageSavedInFirebase.toString())
+                            vm.updateGalleries(galleryId, imagesId)
+                            getUrls()
+                        }
+                    }
                 }
             }
-        }
-    }
-
-    private fun onClickSendImage() {
-        activity_message_chat_add_file_button.setOnClickListener {
-            showGalleryWithPermissionCheck()
         }
     }
 
@@ -186,24 +179,6 @@ class MessageActivity : BaseActivity() {
         onRequestPermissionsResult(requestCode, grantResults)
     }
 
-    private fun configureRecyclerView(discussionId: String) {
-        viewModel?.let { vm ->
-            activity_message_chat_recycler_view.run {
-                getCurrentUser()?.let { u ->
-                    adapter = MessageAdapter(generateOptionsForAdapter(vm.getAllMessageForChat(discussionId)), Glide.with(this), u.uid).also {
-                        it.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                                smoothScrollToPosition(it.itemCount) // Scroll to bottom on new messages
-                            }
-                        });
-                        layoutManager = LinearLayoutManager(this@MessageActivity)
-                        this.adapter = it
-                    }
-                }
-            }
-        }
-    }
-
     @NeedsPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showGallery() {
         // 3 - Launch an "Selection Image" Activity
@@ -216,11 +191,7 @@ class MessageActivity : BaseActivity() {
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) { //SUCCESS
                 data?.let {
-                    this.uriImageSelected = it.data
-                    Glide.with(this) //SHOWING PREVIEW OF IMAGE
-                            .load(this.uriImageSelected)
-                            .apply(RequestOptions.circleCropTransform())
-                            .into(this.activity_message_chat_image_chosen_preview)
+                    it.data?.let { it1 -> uploadPhotoInFirebase(it1) }
                 }
                 return
             } else {
@@ -248,9 +219,4 @@ class MessageActivity : BaseActivity() {
     fun onPermissionNeverAskAgain() {
         Toast.makeText(this, getString(R.string.missing_permission), Toast.LENGTH_SHORT).show()
     }
-
-    private fun generateOptionsForAdapter(query: Query) = FirestoreRecyclerOptions.Builder<Message>()
-            .setQuery(query, Message::class.java)
-            .setLifecycleOwner(this)
-            .build()
 }

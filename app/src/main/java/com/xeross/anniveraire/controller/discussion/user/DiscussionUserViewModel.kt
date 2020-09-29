@@ -15,7 +15,6 @@ class DiscussionUserViewModel : ViewModel() {
     private val databaseUsersInstance =
             FirebaseFirestore.getInstance().collection(USERS_COLLECTION)
 
-    fun getUsers() = databaseUsersInstance
     fun getUser(id: String) = databaseUsersInstance.document(id).get()
     fun getDiscussion(id: String) = databaseDiscussionInstance.document(id).get()
 

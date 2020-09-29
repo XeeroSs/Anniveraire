@@ -10,7 +10,7 @@
 
     <item
         android:id="@+id/toolbar_options"
-        android:icon="@drawable/ic_options"
+        android:icon="@drawable/ic_users"
         android:title="@string/title_options"
         app:showAsAction="ifRoom" />
 

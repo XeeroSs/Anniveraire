@@ -49,6 +49,7 @@ class DiscussionRequestActivity : BaseActivity() {
             userId?.let {
                 vm.getUser(it).addOnCompleteListener { t ->
                     t.result?.toObject(User::class.java)?.let { user ->
+                        vm.discussionDeny(discussion, it, user.discussionsRequestId)
                         vm.updateDiscussionAndUser(discussion, it, user.discussionsId)
                         Toast.makeText(this, "Discussion join !", Toast.LENGTH_SHORT).show()
                         discussions.clear()

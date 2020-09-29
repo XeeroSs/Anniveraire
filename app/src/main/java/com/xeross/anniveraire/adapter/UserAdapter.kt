@@ -12,12 +12,12 @@ import com.bumptech.glide.Glide
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.User
-import kotlinx.android.synthetic.main.discussion_user_cell.view.*
+import kotlinx.android.synthetic.main.user_cell.view.*
 import java.util.*
 
-class DiscussionUserAdapter(private val discussions: ArrayList<User>,
-                            private val context: Context,
-                            private val clickListener: ClickListener<User>) : RecyclerView.Adapter<DiscussionUserAdapter.ViewHolder>() {
+class UserAdapter(private val discussions: ArrayList<User>,
+                  private val context: Context,
+                  private val clickListener: ClickListener<User>) : RecyclerView.Adapter<UserAdapter.ViewHolder>() {
 
     override fun getItemCount() = discussions.size
 
@@ -28,7 +28,7 @@ class DiscussionUserAdapter(private val discussions: ArrayList<User>,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-            ViewHolder(LayoutInflater.from(context).inflate(R.layout.discussion_user_cell, parent, false))
+            ViewHolder(LayoutInflater.from(context).inflate(R.layout.user_cell, parent, false))
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val discussion = discussions[position]

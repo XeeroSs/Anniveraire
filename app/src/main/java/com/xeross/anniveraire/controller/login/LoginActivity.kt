@@ -69,8 +69,10 @@ class LoginActivity : AppCompatActivity() {
                     val urlPicture = if (user == null) if (it.photoUrl != null) it.photoUrl.toString() else null else user.urlImage
                     val uid = it.uid
                     val discussionId = user?.discussionsId ?: ArrayList()
+                    val galleriesId = user?.galleriesId ?: ArrayList()
                     val discussionRequestId = user?.discussionsRequestId ?: ArrayList()
-                    vm.createUser(uid, email, username, urlPicture,discussionId =  discussionId,discussionRequestId = discussionRequestId)
+                    val galleriesRequestId = user?.galleriesRequestId ?: ArrayList()
+                    vm.createUser(uid, email, username, urlPicture, discussionId = discussionId, discussionRequestId = discussionRequestId, galleriesId = galleriesId, galleriesRequestId = galleriesRequestId)
                     finish()
                 }
             }

@@ -8,6 +8,7 @@ object Constants {
     const val TEST_ID = 20
 
     const val ID_DISCUSSION = "ID_DISCUSSION"
+    const val ID_GALLERY = "ID_GALLERY"
 
     // Request Code
     const val SOCIAL_FRAGMENT_REQUEST_CODE = 999

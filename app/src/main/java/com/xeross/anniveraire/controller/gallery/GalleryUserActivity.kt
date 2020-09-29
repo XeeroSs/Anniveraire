@@ -1,4 +1,4 @@
-package com.xeross.anniveraire.controller.discussion.user
+package com.xeross.anniveraire.controller.gallery
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,26 +7,27 @@ import com.xeross.anniveraire.adapter.UserAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
+import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
-import kotlinx.android.synthetic.main.activity_discussion_user.*
+import kotlinx.android.synthetic.main.activity_gallery_user.*
 import kotlinx.android.synthetic.main.bsd_confirm.view.*
 
-class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
+class GalleryUserActivity : BaseActivity(), ClickListener<User> {
 
-    private val usersInDiscussion = ArrayList<User>()
-    private var viewModel: DiscussionUserViewModel? = null
+    private val usersInGallery = ArrayList<User>()
+    private var viewModel: GalleryUserViewModel? = null
     private var adapter: UserAdapter? = null
-    private lateinit var discussionId: String
+    private lateinit var galleryId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(Constants.ID_DISCUSSION)?.let { s ->
+        intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
             viewModel = configureViewModel()
-            discussionId = s
-            UserAdapter(usersInDiscussion, this, this).let {
+            galleryId = s
+            UserAdapter(usersInGallery, this, this).let {
                 adapter = it
-                activity_discussion_user_recyclerview.setRecyclerViewAdapter(it)
+                activity_gallery_user_recyclerview.setRecyclerViewAdapter(it)
             }
             getUsers()
         } ?: finish()
@@ -34,12 +35,12 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
 
     private fun getUsers() {
         viewModel?.let { vm ->
-            vm.getDiscussion(discussionId).addOnSuccessListener { dsD ->
-                dsD.toObject(Discussion::class.java)?.let { d ->
+            vm.getGallery(galleryId).addOnSuccessListener { dsD ->
+                dsD.toObject(Gallery::class.java)?.let { d ->
                     d.usersId.forEach { userId ->
                         vm.getUser(userId).addOnSuccessListener { dsU ->
                             dsU.toObject(User::class.java)?.let { u ->
-                                usersInDiscussion.add(u)
+                                usersInGallery.add(u)
                                 adapter?.notifyDataSetChanged()
                             }
                         }
@@ -49,13 +50,13 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
         }
     }
 
-    override fun getToolBar() = R.id.activity_discussion_user_toolbar
-    override fun getLayoutId() = R.layout.activity_discussion_user
+    override fun getToolBar() = R.id.activity_gallery_user_toolbar
+    override fun getLayoutId() = R.layout.activity_gallery_user
 
     override fun onClick(o: User) {}
 
     override fun onLongClick(o: User) {
-        viewModel?.getDiscussion(discussionId)?.addOnSuccessListener { document ->
+        viewModel?.getGallery(galleryId)?.addOnSuccessListener { document ->
             document.toObject(Discussion::class.java)?.let { d ->
                 d.ownerId.takeIf { it != "" }?.let { userId ->
                     if (userId == getCurrentUser()?.uid) {
@@ -78,10 +79,10 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
                 viewModel?.let { vm ->
                     vm.getUser(user.id).addOnSuccessListener { d ->
                         d.toObject(User::class.java)?.let { u ->
-                            val discussionIds = u.discussionsId ?: ArrayList()
-                            discussionIds.remove(discussionId)
-                            vm.updateDiscussionsUser(u.id, discussionIds)
-                            usersInDiscussion.clear()
+                            val galleryIds = u.galleriesId ?: ArrayList()
+                            galleryIds.remove(galleryId)
+                            vm.updateGalleryUser(u.id, galleryIds)
+                            usersInGallery.clear()
                             getUsers()
                         }
                     }

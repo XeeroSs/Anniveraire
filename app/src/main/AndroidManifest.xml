@@ -14,7 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Anniversaire">
-        <activity android:name=".controller.discussion.user.DiscussionUserActivity"></activity>
+        <activity android:name=".controller.gallery.request.GalleryRequestActivity"></activity>
+        <activity android:name=".controller.gallery.GalleryUserActivity" />
+        <activity android:name=".controller.gallery.GalleryDetailActivity" />
+        <activity android:name=".controller.gallery.GalleryActivity" />
+        <activity android:name=".controller.discussion.user.DiscussionUserActivity" />
         <activity android:name=".controller.discussion.request.DiscussionRequestActivity" />
         <activity android:name=".controller.discussion.DiscussionActivity" />
         <activity
