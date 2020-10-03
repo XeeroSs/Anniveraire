@@ -17,7 +17,10 @@ import com.xeross.anniveraire.utils.UtilsDate
 import kotlinx.android.synthetic.main.birthday_cell.view.*
 import java.util.*
 
-class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList<Birthday>, context: Context, dateToday: Date, clickListener: ClickListener<Birthday>) : BaseAdapter<BirthdayAdapter.ViewHolder, Birthday>(objectList, objectListFull, context, dateToday, clickListener) {
+class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList<Birthday>,
+                      context: Context, private val dateToday: Date,
+                      clickListener: ClickListener<Birthday>) :
+        BaseAdapter<BirthdayAdapter.ViewHolder, Birthday>(objectList, objectListFull, context, clickListener) {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageEvent: ImageView = itemView.birthday_cell_image

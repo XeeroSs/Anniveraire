@@ -3,23 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_event">
+    app:startDestination="@+id/navigation_discussions">
 
     <fragment
-        android:id="@+id/navigation_date"
-        android:name="com.xeross.anniveraire.controller.date.DateFragment"
-        android:label="@string/title_event"
-        tools:layout="@layout/fragment_date" />
+        android:id="@+id/navigation_galleries"
+        android:label="@string/title_galleries"
+        tools:layout="@layout/fragment_galleries" />
 
     <fragment
-        android:id="@+id/navigation_event"
-        android:name="com.xeross.anniveraire.controller.event.BirthdayFragment"
+        android:id="@+id/navigation_discussions"
+        android:label="@string/title_discussions"
+        tools:layout="@layout/fragment_discussions" />
+
+    <fragment
+        android:id="@+id/navigation_birthday"
         android:label="@string/title_birthday"
         tools:layout="@layout/fragment_event" />
-
-    <fragment
-        android:id="@+id/navigation_social"
-        android:name="com.xeross.anniveraire.controller.social.SocialFragment"
-        android:label="@string/title_social"
-        tools:layout="@layout/fragment_social" />
 </navigation>

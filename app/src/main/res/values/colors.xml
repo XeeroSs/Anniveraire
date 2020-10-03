@@ -15,4 +15,5 @@
     <!-- TEXTVIEW -->
     <color name="colorTextBlack">#8a000000</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#9a000000</color>
 </resources>

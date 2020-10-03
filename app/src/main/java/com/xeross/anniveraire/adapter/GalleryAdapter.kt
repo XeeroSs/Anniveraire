@@ -9,11 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.xeross.anniveraire.R
+import com.xeross.anniveraire.listener.ClickListener
 import kotlinx.android.synthetic.main.gallery_cell.view.*
 import java.util.*
 
 class GalleryAdapter(private val discussions: ArrayList<String>,
-                     private val context: Context) : RecyclerView.Adapter<GalleryAdapter.ViewHolder>() {
+                     private val context: Context, private val clickListener: ClickListener<String>) : RecyclerView.Adapter<GalleryAdapter.ViewHolder>() {
 
     override fun getItemCount() = discussions.size
 
@@ -27,6 +28,9 @@ class GalleryAdapter(private val discussions: ArrayList<String>,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val url = discussions[position]
         updateItem(holder, url)
+        holder.image.setOnClickListener {
+            clickListener.onClick(url)
+        }
     }
 
     private fun updateItem(holder: ViewHolder, url: String) {

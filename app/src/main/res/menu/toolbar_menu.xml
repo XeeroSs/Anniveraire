@@ -16,9 +16,9 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
     <item
-        android:id="@+id/toolbar_sort"
-        android:icon="@drawable/ic_sort"
-        android:title="@string/title_sort"
+        android:id="@+id/toolbar_requests"
+        android:icon="@drawable/ic_requests"
+        android:title="@string/title_request"
         app:showAsAction="ifRoom" />
 
 </menu>

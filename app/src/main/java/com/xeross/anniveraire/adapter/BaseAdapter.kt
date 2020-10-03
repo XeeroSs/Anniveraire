@@ -11,7 +11,6 @@ abstract class BaseAdapter<VH : RecyclerView.ViewHolder, T>(
         private val objectList: ArrayList<T>,
         private val objectListFull: ArrayList<T>,
         protected val context: Context,
-        protected val dateToday: Date,
         protected val clickListener: ClickListener<T>) : RecyclerView.Adapter<VH>(), Filterable {
 
     override fun getItemCount() = objectList.size

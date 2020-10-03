@@ -85,4 +85,7 @@
     <string name="you_are_the_owner_of_the_chat_this_action_will_permanently_delete_the_chat">You are the owner of the chat, this action will permanently delete the chat.</string>
     <string name="leave_the_discussion_group">Leave the discussion group ?</string>
     <string name="leave">Leave</string>
+    <string name="title_discussions">Discussions</string>
+    <string name="title_galleries">Galleries</string>
+    <string name="title_request">Requests</string>
 </resources>

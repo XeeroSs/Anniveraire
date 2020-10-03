@@ -1,40 +1,60 @@
 package com.xeross.anniveraire.controller.event
 
+import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
-import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.BirthdayAdapter
-import com.xeross.anniveraire.controller.BaseEventFragment
-import com.xeross.anniveraire.injection.ViewModelFactory
+import com.xeross.anniveraire.controller.BaseFragment
 import com.xeross.anniveraire.listener.ClickListener
+import com.xeross.anniveraire.listener.ToolBarListener
 import com.xeross.anniveraire.model.Birthday
-import com.xeross.anniveraire.model.SortState
+import com.xeross.anniveraire.utils.BottomSheetDialogHelper
 import com.xeross.anniveraire.utils.UtilsDate
-import kotlinx.android.synthetic.main.fragment_event.*
+import kotlinx.android.synthetic.main.activity_gallery.*
+import java.util.*
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 
-class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<Birthday> {
+class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
     private var adapterEvent: BirthdayAdapter? = null
     private val birthdays = ArrayList<Birthday>()
     private val birthdaysFull = ArrayList<Birthday>()
-    private var sortBy: SortState = SortState.DAY_REMAINING
+    private var viewModel: BirthdayViewModel? = null
+    private lateinit var calendar: Calendar
+    private lateinit var dateToday: Date
+    private var bsdHelper: BottomSheetDialogHelper? = null
+    private lateinit var datePickerDialog: DatePickerDialog.OnDateSetListener
 
     override fun getFragmentId() = R.layout.fragment_event
     override fun setFragment() = this
 
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        dateToday = Date()
+        calendar = Calendar.getInstance()
+        bsdHelper = context?.let { BottomSheetDialogHelper(it, this) }
+        return super.onCreateView(inflater, container, savedInstanceState)
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        initializeRecyclerView()
-        context?.let { context ->
-            configureViewModel<BirthdayViewModel>(ViewModelFactory(context))?.let {
-                viewModel = it
-                getBirthdaysFromRoom(it)
+        context?.let { c ->
+            BirthdayAdapter(birthdays, birthdaysFull, c, dateToday, this).let {
+                adapterEvent = it
+                gallery_activity_recyclerview.setRecyclerViewAdapter(it)
             }
         }
+        viewModel = configureViewModel()
+        viewModel?.let { getBirthdaysFromRoom(it) }
     }
 
     private fun getBirthdaysFromRoom(it: BirthdayViewModel) {
@@ -50,15 +70,7 @@ class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<B
         })
     }
 
-    internal fun getList() = birthdays
-
-    private fun setSortBy(stateSort: SortState) {
-        this.sortBy = stateSort
-    }
-
-    internal fun getAdapter() = adapterEvent
-
-    fun sortList() {
+    private fun sortList() {
         birthdays.run {
             clear()
             addAll(birthdaysFull)
@@ -69,26 +81,11 @@ class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<B
 
     private fun ArrayList<Birthday>.sortListWith() {
         sortWith(Comparator { event1, event2 ->
-            when (sortBy) {
-                SortState.DAY_REMAINING -> (UtilsDate.getRemainingDays(
-                        getDateToday(),
-                        event1.dateBirth
-                ) - UtilsDate.getRemainingDays(getDateToday(), event2.dateBirth))
-                SortState.NAME -> "${event1.firstName} ${event1.lastName}".compareTo("${event2.firstName} ${event2.lastName}")
-                SortState.AGE_DESCENDING -> {
-                    compareAgeAscending(event1, event2)
-                }
-            }
+            (UtilsDate.getRemainingDays(
+                    dateToday,
+                    event1.dateBirth
+            ) - UtilsDate.getRemainingDays(dateToday, event2.dateBirth))
         })
-    }
-
-    private fun compareAgeAscending(birthday1: Birthday, birthday2: Birthday): Int {
-        val ageEvent1 = UtilsDate.getAgeEvent(this.getDateToday(), birthday1.dateBirth).plus(1)
-        val ageEvent2 = UtilsDate.getAgeEvent(this.getDateToday(), birthday2.dateBirth).plus(1)
-        return ageEvent1.takeIf { it == ageEvent2 }?.let {
-            (UtilsDate.getRemainingDays(this.getDateToday(), birthday1.dateBirth)
-                    - UtilsDate.getRemainingDays(this.getDateToday(), birthday2.dateBirth))
-        } ?: (ageEvent1 - ageEvent2)
     }
 
     fun updateEventList(birthday: Birthday) {
@@ -97,24 +94,6 @@ class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<B
             birthdaysFull.add(birthday)
             sortList()
         }
-    }
-
-    private fun initializeRecyclerView() {
-        context?.let {
-            adapterEvent = BirthdayAdapter(birthdays, birthdaysFull, it, this.getDateToday(), this)
-            fragment_event_list.apply {
-                setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(context)
-                itemAnimator = DefaultItemAnimator()
-                adapter = adapterEvent
-            }
-        }
-    }
-
-    internal fun onClickChoiceSort(bottomSheetDialog: BottomSheetDialog, sortState: SortState) {
-        getEventFragment()?.setSortBy(sortState)
-        getEventFragment()?.sortList()
-        bottomSheetDialog.dismiss()
     }
 
     override fun onClick(o: Birthday) {
@@ -126,11 +105,58 @@ class BirthdayFragment : BaseEventFragment<BirthdayViewModel>(), ClickListener<B
             viewModel?.let {
                 it.getBirthday(o.id)?.observe(this, Observer { birthday ->
                     birthday?.let { b ->
-                        getBSDHelper()?.itemSelected(b, it)
+                        bsdHelper?.itemSelected(b, it)
                     }
                 })
             }
         }
+    }
+
+    fun onClickDatePicker(editText: EditText, context: Context) {
+        editText.text = UtilsDate.getDateInString(calendar.time).toEditable()
+        editText.setOnClickListener {
+            DatePickerDialog(
+                    context, datePickerDialog, calendar
+                    .get(Calendar.YEAR), calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)).show()
+        }
+    }
+
+    fun getDatePicker(editText: EditText, dateBirth: Date?): DatePickerDialog.OnDateSetListener {
+        return DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+            dateBirth?.let { calendar.time = it } ?: run {
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+            }
+            editText.text = UtilsDate.getDateInString(calendar.time).toEditable()
+        }
+    }
+
+    private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
+
+    private fun searchEvent(searchView: SearchView) {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapterEvent?.filter?.filter(newText)
+                return true
+            }
+
+        })
+    }
+
+    override fun onRequest() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSearch(searchView: SearchView) {
+        searchEvent(searchView)
+    }
+
+    override fun onAdd() {
+        bsdHelper?.choiceEvents(viewModel)
     }
 
 }

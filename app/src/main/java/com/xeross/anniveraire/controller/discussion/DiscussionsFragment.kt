@@ -4,14 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
-import com.xeross.anniveraire.controller.base.BaseActivity
+import com.xeross.anniveraire.controller.BaseFragment
 import com.xeross.anniveraire.controller.messages.MessageActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
-import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
+import com.xeross.anniveraire.utils.Constants
 import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_confirm.view.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
@@ -20,14 +21,15 @@ import kotlinx.android.synthetic.main.bsd_item_selected.view.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
+class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
 
     private var viewModel: DiscussionViewModel? = null
-    private var adapterEvent: DiscussionAdapter? = null
+    private var adapter: DiscussionAdapter? = null
     private val discussions = ArrayList<Discussion>()
+    private val discussionsFull = ArrayList<Discussion>()
 
     private fun createBSDDiscussion(discussionId: String?) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_discussion, null).let { view ->
+        LayoutInflater.from(context).inflate(R.layout.bsd_discussion, null).let { view ->
             val alertDialog = createBSD(view)
 
             view.bsd_discussion_button_add.setOnClickListener {
@@ -44,43 +46,66 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
                         vm.getUser(userId).addOnCompleteListener { t ->
                             t.result?.toObject(User::class.java)?.let { user ->
                                 viewModel?.createDiscussion(discussion, userId, user.discussionsId)
-                                Toast.makeText(this, "Discussion create !", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Discussion create !", Toast.LENGTH_SHORT).show()
                                 discussions.clear()
                                 getDiscussionsFromUser(userId)
-                                alertDialog.dismiss()
+                                alertDialog?.dismiss()
                             }
                         }
                     } else {
                         vm.updateDiscussionName(view.bsd_discussion_edittext.text.toString(), discussionId)
-                        Toast.makeText(this, "Name update !", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
                         discussions.clear()
                         getDiscussionsFromUser(userId)
-                        alertDialog.dismiss()
+                        alertDialog?.dismiss()
                     }
                 }
             }
         }
     }
 
-    override fun getToolBar() = R.id.toolbar
+    override fun getFragmentId() = R.layout.activity_discussion
 
-    override fun getLayoutId() = R.layout.activity_discussion
+    override fun setFragment() = this
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = configureViewModel()
-        fab.setOnClickListener {
-            createBSDDiscussion(null)
-        }
         initializeRecyclerView()
         val userId = getCurrentUser()?.uid ?: return
         getDiscussionsFromUser(userId)
     }
 
+    override fun onRequest() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSearch(searchView: SearchView) {
+        searchEvent(searchView)
+    }
+
+    private fun searchEvent(searchView: SearchView) {
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter?.filter?.filter(newText)
+                return true
+            }
+
+        })
+    }
+
+    override fun onAdd() {
+        createBSDDiscussion(null)
+    }
+
     private fun initializeRecyclerView() {
-        DiscussionAdapter(discussions, this, this).let {
-            adapterEvent = it
-            recyclerview_social.setRecyclerViewAdapter(it)
+        context?.let { c ->
+            DiscussionAdapter(discussions, discussionsFull, this, c).let {
+                adapter = it
+                recyclerview_social.setRecyclerViewAdapter(it)
+            }
         }
     }
 
@@ -92,18 +117,19 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
                         vm.getDiscussion(dId).addOnCompleteListener { taskDiscussion ->
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
-                                adapterEvent?.notifyDataSetChanged()
+                                adapter?.notifyDataSetChanged()
                             }
                         }
                     }
+                    discussionsFull.addAll(discussions)
                 }
             }
         }
     }
 
     override fun onClick(o: Discussion) {
-        val intent = Intent(this, MessageActivity::class.java)
-        intent.putExtra(ID_DISCUSSION, o.id)
+        val intent = Intent(context, MessageActivity::class.java)
+        intent.putExtra(Constants.ID_DISCUSSION, o.id)
         startActivity(intent)
     }
 
@@ -120,37 +146,37 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
     }
 
     private fun itemSelected(discussion: Discussion) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_item_leave, null).run {
+        LayoutInflater.from(context).inflate(R.layout.bsd_item_leave, null).run {
 
             val bottomSheetDialog = createBSD(this)
 
             bsd_item_selected_leave.setOnClickListener {
                 confirmLeave(discussion)
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
             }
         }
 
     }
 
     private fun itemSelectedOwnerDiscussion(discussion: Discussion) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_item_selected, null).run {
+        LayoutInflater.from(context).inflate(R.layout.bsd_item_selected, null).run {
 
             val bottomSheetDialog = createBSD(this)
 
             bsd_item_selected_edit.setOnClickListener {
                 createBSDDiscussion(discussion.id)
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
             }
             bsd_item_selected_delete.setOnClickListener {
                 confirmDelete(discussion)
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
             }
         }
 
     }
 
     private fun confirmDelete(discussion: Discussion) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_confirm_deleted_permanently, null).let {
+        LayoutInflater.from(context).inflate(R.layout.bsd_confirm_deleted_permanently, null).let {
 
             val bottomSheetDialog = createBSD(it)
 
@@ -158,20 +184,20 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
 
             it.bsd_confirm_yes.setOnClickListener {
                 // delete
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
                 viewModel?.deleteDiscussion(discussion.id)
                 discussions.clear()
                 getDiscussionsFromUser(userUid)
             }
             it.bsd_confirm_no.setOnClickListener {
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
             }
         }
 
     }
 
     private fun confirmLeave(discussion: Discussion) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_confirm_leave, null).let {
+        LayoutInflater.from(context).inflate(R.layout.bsd_confirm_leave, null).let {
 
             val bottomSheetDialog = createBSD(it)
 
@@ -180,7 +206,7 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
                 val userId = getCurrentUser()?.uid ?: return@setOnClickListener
 
                 // delete
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
                 viewModel?.let { vm ->
                     vm.getUser(userId).addOnSuccessListener { d ->
                         d.toObject(User::class.java)?.let { u ->
@@ -193,9 +219,10 @@ class DiscussionActivity : BaseActivity(), ClickListener<Discussion> {
                 }
             }
             it.bsd_confirm_no.setOnClickListener {
-                bottomSheetDialog.dismiss()
+                bottomSheetDialog?.dismiss()
             }
         }
 
     }
+
 }

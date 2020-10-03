@@ -7,18 +7,12 @@ import android.view.View
 import android.widget.Button
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.controller.BaseEventFragment
 import com.xeross.anniveraire.controller.event.BirthdayFragment
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
 import kotlinx.android.synthetic.main.bsd_birthday.view.*
-import kotlinx.android.synthetic.main.bsd_choice_sort.view.*
-import kotlinx.android.synthetic.main.bsd_choice_type_event.view.*
-import kotlinx.android.synthetic.main.bsd_confirm.view.*
-import kotlinx.android.synthetic.main.bsd_event_and_other.view.*
-import kotlinx.android.synthetic.main.bsd_item_selected.view.*
 
 class BottomSheetDialogHelper(private val context: Context, private val fragment: BaseEventFragment<*>) {
 
