@@ -7,14 +7,20 @@ import android.view.View
 import android.widget.Button
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.xeross.anniveraire.R
+import com.xeross.anniveraire.controller.BaseFragment
 import com.xeross.anniveraire.controller.event.BirthdayFragment
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.BirthdayState
 import com.xeross.anniveraire.model.SortState
 import kotlinx.android.synthetic.main.bsd_birthday.view.*
+import kotlinx.android.synthetic.main.bsd_choice_sort.view.*
+import kotlinx.android.synthetic.main.bsd_choice_type_event.view.*
+import kotlinx.android.synthetic.main.bsd_confirm.view.*
+import kotlinx.android.synthetic.main.bsd_event_and_other.view.*
+import kotlinx.android.synthetic.main.bsd_item_selected.view.*
 
-class BottomSheetDialogHelper(private val context: Context, private val fragment: BaseEventFragment<*>) {
+class BottomSheetDialogHelper(private val context: Context, private val fragment: BaseFragment) {
 
     // ---------- BottomSheetDialog ----------
 
@@ -39,18 +45,9 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
 
     }
 
-    fun sortEvents() {
-        fragment.layoutInflater.inflate(R.layout.bsd_choice_sort, null).let {
-            val bottomSheetDialog = createBSD(it)
-            onClickChoiceSort(it.bsd_sort_name, bottomSheetDialog, SortState.NAME)
-            onClickChoiceSort(it.bsd_sort_age_descending, bottomSheetDialog, SortState.AGE_DESCENDING)
-            onClickChoiceSort(it.bsd_sort_remaining_days, bottomSheetDialog, SortState.DAY_REMAINING)
-        }
-    }
-
     private fun birthday(birthday: Birthday?, viewModel: BirthdayViewModel?) {
         @Suppress("SimpleRedundantLet")
-        val bFragment = fragment.getEventFragment()?.let { it } ?: return
+        val bFragment = fragment as BirthdayFragment
 
         LayoutInflater.from(context).inflate(R.layout.bsd_birthday, null).let { view ->
 
@@ -98,7 +95,8 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
 
     private fun birthdayEventOrOther(birthday: Birthday?, isOther: Boolean, viewModel: BirthdayViewModel?) {
         @Suppress("SimpleRedundantLet")
-        val bFragment = fragment.getEventFragment()?.let { it } ?: return
+        val bFragment = fragment as BirthdayFragment
+
 
         fragment.layoutInflater.inflate(R.layout.bsd_event_and_other, null).let { view ->
 
@@ -154,12 +152,11 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
             bsd_item_selected_edit.setOnClickListener {
                 when (fragment.getFragmentId()) {
                     R.layout.fragment_event -> {
-                        fragment.getEventFragment()?.let {
-                            when (birthday.state) {
-                                BirthdayState.BIRTHDAY -> birthday(birthday, viewModel)
-                                BirthdayState.EVENT_BIRTHDAY -> birthdayEventOrOther(birthday, false, viewModel)
-                                BirthdayState.OTHER -> birthdayEventOrOther(birthday, true, viewModel)
-                            }
+                        fragment as BirthdayFragment
+                        when (birthday.state) {
+                            BirthdayState.BIRTHDAY -> birthday(birthday, viewModel)
+                            BirthdayState.EVENT_BIRTHDAY -> birthdayEventOrOther(birthday, false, viewModel)
+                            BirthdayState.OTHER -> birthdayEventOrOther(birthday, true, viewModel)
                         }
                     }
                 }
@@ -174,6 +171,7 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
     }
 
     private fun confirm(birthday: Birthday, viewModel: BirthdayViewModel?) {
+        fragment as BirthdayFragment
         fragment.layoutInflater.inflate(R.layout.bsd_confirm, null).let {
 
             val bottomSheetDialog = createBSD(it)
@@ -182,8 +180,8 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
                 // do stuff (room) ..
                 viewModel?.deleteBirthday(birthday.id)
                 bottomSheetDialog.dismiss()
-                fragment.getEventFragment()?.getList()?.remove(birthday)
-                fragment.getEventFragment()?.getAdapter()?.notifyDataSetChanged()
+                fragment.getList().remove(birthday)
+                fragment.getAdapter()?.notifyDataSetChanged()
             }
             it.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog.dismiss()
@@ -196,12 +194,6 @@ class BottomSheetDialogHelper(private val context: Context, private val fragment
     // ---------- Other ----------
 
     private fun String.toEditable(): Editable = Editable.Factory.getInstance().newEditable(this)
-
-    private fun onClickChoiceSort(view: Button, bottomSheetDialog: BottomSheetDialog, sortState: SortState) {
-        view.setOnClickListener {
-            fragment.getEventFragment()?.onClickChoiceSort(bottomSheetDialog, sortState)
-        }
-    }
 
     private fun createBSD(view: View) = BottomSheetDialog(context).apply {
         setContentView(view)

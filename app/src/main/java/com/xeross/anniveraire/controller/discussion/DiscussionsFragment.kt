@@ -8,16 +8,17 @@ import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
 import com.xeross.anniveraire.controller.BaseFragment
+import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestActivity
 import com.xeross.anniveraire.controller.messages.MessageActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
-import kotlinx.android.synthetic.main.activity_discussion.*
 import kotlinx.android.synthetic.main.bsd_confirm.view.*
 import kotlinx.android.synthetic.main.bsd_discussion.view.*
 import kotlinx.android.synthetic.main.bsd_item_leave.view.*
 import kotlinx.android.synthetic.main.bsd_item_selected.view.*
+import kotlinx.android.synthetic.main.fragment_discussions.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -64,12 +65,12 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
         }
     }
 
-    override fun getFragmentId() = R.layout.activity_discussion
+    override fun getFragmentId() = R.layout.fragment_discussions
 
     override fun setFragment() = this
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         viewModel = configureViewModel()
         initializeRecyclerView()
         val userId = getCurrentUser()?.uid ?: return
@@ -77,7 +78,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
     }
 
     override fun onRequest() {
-        TODO("Not yet implemented")
+        startActivity(Intent(activity, DiscussionRequestActivity::class.java))
     }
 
     override fun onSearch(searchView: SearchView) {
@@ -104,7 +105,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
         context?.let { c ->
             DiscussionAdapter(discussions, discussionsFull, this, c).let {
                 adapter = it
-                recyclerview_social.setRecyclerViewAdapter(it)
+                fragment_discussion_recyclerview.setRecyclerViewAdapter(it)
             }
         }
     }
@@ -113,15 +114,15 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
         viewModel?.let { vm ->
             vm.getUser(userId).addOnCompleteListener { taskUser ->
                 taskUser.result?.toObject(User::class.java)?.let { user ->
-                    user.discussionsId?.forEach { dId ->
+                    user.discussionsId.forEach { dId ->
                         vm.getDiscussion(dId).addOnCompleteListener { taskDiscussion ->
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
+                                discussionsFull.add(discussion)
                                 adapter?.notifyDataSetChanged()
                             }
                         }
                     }
-                    discussionsFull.addAll(discussions)
                 }
             }
         }

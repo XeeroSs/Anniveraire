@@ -20,7 +20,6 @@
         <activity android:name=".controller.gallery.GalleryActivity" />
         <activity android:name=".controller.discussion.user.DiscussionUserActivity" />
         <activity android:name=".controller.discussion.request.DiscussionRequestActivity" />
-        <activity android:name=".controller.discussion.DiscussionActivity" />
         <activity
             android:name=".controller.login.LoginActivity"
             android:label="@string/title_activity_login"

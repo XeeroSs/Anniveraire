@@ -19,6 +19,7 @@ import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.utils.BottomSheetDialogHelper
 import com.xeross.anniveraire.utils.UtilsDate
 import kotlinx.android.synthetic.main.activity_gallery.*
+import kotlinx.android.synthetic.main.fragment_event.*
 import java.util.*
 import kotlin.Comparator
 import kotlin.collections.ArrayList
@@ -33,8 +34,10 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
     private lateinit var calendar: Calendar
     private lateinit var dateToday: Date
     private var bsdHelper: BottomSheetDialogHelper? = null
-    private lateinit var datePickerDialog: DatePickerDialog.OnDateSetListener
+    internal lateinit var datePickerDialog: DatePickerDialog.OnDateSetListener
 
+    fun getList() = birthdays
+    fun getAdapter() = adapterEvent
     override fun getFragmentId() = R.layout.fragment_event
     override fun setFragment() = this
 
@@ -50,7 +53,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
         context?.let { c ->
             BirthdayAdapter(birthdays, birthdaysFull, c, dateToday, this).let {
                 adapterEvent = it
-                gallery_activity_recyclerview.setRecyclerViewAdapter(it)
+                fragment_event_list.setRecyclerViewAdapter(it)
             }
         }
         viewModel = configureViewModel()
@@ -70,7 +73,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
         })
     }
 
-    private fun sortList() {
+    internal fun sortList() {
         birthdays.run {
             clear()
             addAll(birthdaysFull)
@@ -148,7 +151,6 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
     }
 
     override fun onRequest() {
-        TODO("Not yet implemented")
     }
 
     override fun onSearch(searchView: SearchView) {

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.User
@@ -49,6 +50,6 @@ class UserAdapter(private val discussions: ArrayList<User>,
 
     private fun updateItem(holder: ViewHolder, user: User) {
         holder.nameDiscussion.text = user.userName
-        Glide.with(context).load(user.urlImage).into(holder.imageDiscussion)
+        Glide.with(context).load(user.urlImage).apply(RequestOptions.circleCropTransform()).into(holder.imageDiscussion)
     }
 }

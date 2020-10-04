@@ -28,11 +28,6 @@ class GalleriesAdapter(private val objectList: ArrayList<Gallery>,
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             ViewHolder(LayoutInflater.from(context).inflate(R.layout.galleries_cell, parent, false))
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val url = objectList[position]
-        updateItem(holder, url)
-    }
-
     override fun updateItem(holder: ViewHolder, dObject: Gallery) {
         holder.dateGallery.text = UtilsDate.getDateWithHourInString(dObject.activityDate)
         holder.nameGallery.text = dObject.name

@@ -1,6 +1,8 @@
 package com.xeross.anniveraire.utils
 
 object Constants {
+    const val URL_IMAGE: String = "URL_IMAGE"
+
     // Notification
     const val CHANNEL_ID = "BIRTHDAY_CHANNEL_ID"
     const val CHANNEL_NAME = "BIRTHDAY_CHANNEL_NAME"

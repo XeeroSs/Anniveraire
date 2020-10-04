@@ -9,6 +9,7 @@ import com.xeross.anniveraire.controller.discussion.user.DiscussionUserViewModel
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
 import com.xeross.anniveraire.controller.gallery.GalleryUserViewModel
 import com.xeross.anniveraire.controller.gallery.GalleryViewModel
+import com.xeross.anniveraire.controller.gallery.request.GalleryRequestViewModel
 import com.xeross.anniveraire.controller.login.LoginViewModel
 import com.xeross.anniveraire.controller.messages.MessageViewModel
 import com.xeross.anniveraire.database.BirthdayDataRepository
@@ -32,6 +33,7 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
             getViewModel<DiscussionUserViewModel>(modelClass) -> DiscussionUserViewModel()
             getViewModel<DiscussionRequestViewModel>(modelClass) -> DiscussionRequestViewModel(executor)
             getViewModel<MessageViewModel>(modelClass) -> MessageViewModel(executor)
+            getViewModel<GalleryRequestViewModel>(modelClass) -> GalleryRequestViewModel(executor)
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as VM
     }

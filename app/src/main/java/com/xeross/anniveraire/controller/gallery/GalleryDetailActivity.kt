@@ -11,7 +11,7 @@ class GalleryDetailActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
+        intent.getStringExtra(Constants.URL_IMAGE)?.let { s ->
             Glide.with(this).load(s)
                     .thumbnail(0.5f)
                     .useAnimationPool(true)

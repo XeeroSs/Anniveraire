@@ -14,6 +14,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleryAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
+import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
@@ -24,7 +25,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 @RuntimePermissions
-class GalleryActivity : BaseActivity() {
+class GalleryActivity : BaseActivity(), ClickListener<String> {
 
     companion object {
         const val RC_CHOOSE_PHOTO = 2
@@ -43,12 +44,16 @@ class GalleryActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
+            galleryId = s
+        } ?: finish()
+
         viewModel = configureViewModel()
         getCurrentUserFromFirestore()
         activity_gallery_fab.setOnClickListener {
             showGalleryWithPermissionCheck()
         }
-        GalleryAdapter(urls, this).let {
+        GalleryAdapter(urls, this, this).let {
             adapter = it
             gallery_activity_recyclerview.layoutManager = GridLayoutManager(this, 3)
             gallery_activity_recyclerview.setRecyclerViewAdapter(it, true)
@@ -132,7 +137,7 @@ class GalleryActivity : BaseActivity() {
                 }
             }
             R.id.toolbar_options -> {
-                val intent = Intent(this, GalleryUserViewModel::class.java)
+                val intent = Intent(this, GalleryUserActivity::class.java)
                 intent.putExtra(Constants.ID_GALLERY, galleryId)
                 startActivity(intent)
             }
@@ -218,5 +223,15 @@ class GalleryActivity : BaseActivity() {
     @OnNeverAskAgain(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun onPermissionNeverAskAgain() {
         Toast.makeText(this, getString(R.string.missing_permission), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onClick(o: String) {
+        Intent(this, GalleryDetailActivity::class.java).let {
+            it.putExtra(Constants.URL_IMAGE, o)
+            startActivity(it)
+        }
+    }
+
+    override fun onLongClick(o: String) {
     }
 }

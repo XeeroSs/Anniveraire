@@ -5,34 +5,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".controller.discussion.DiscussionActivity">
+    tools:context=".controller.gallery.GalleryActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/discussion_activity_toolbar"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary" />
+        android:layout_height="wrap_content"
+        android:theme="@style/Anniversaire.AppBarOverlay">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/gallery_activity_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/Anniversaire.PopupOverlay" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_social"
+            android:id="@+id/gallery_activity_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:layout_editor_absoluteX="-160dp"
             tools:layout_editor_absoluteY="-34dp" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/activity_gallery_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            android:background="@color/colorGreen"
+            android:backgroundTint="@color/colorPrimary"
+            android:tint="@color/colorWhite"
+            app:fabSize="normal"
+            android:src="@drawable/ic_add_light"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
