@@ -12,6 +12,7 @@ import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestAct
 import com.xeross.anniveraire.controller.messages.MessageActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
+import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
 import kotlinx.android.synthetic.main.bsd_confirm.view.*
@@ -49,6 +50,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                                 viewModel?.createDiscussion(discussion, userId, user.discussionsId)
                                 Toast.makeText(context, "Discussion create !", Toast.LENGTH_SHORT).show()
                                 discussions.clear()
+                                discussionsFull.clear()
                                 getDiscussionsFromUser(userId)
                                 alertDialog?.dismiss()
                             }
@@ -57,6 +59,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                         vm.updateDiscussionName(view.bsd_discussion_edittext.text.toString(), discussionId)
                         Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
                         discussions.clear()
+                        discussionsFull.clear()
                         getDiscussionsFromUser(userId)
                         alertDialog?.dismiss()
                     }
@@ -119,6 +122,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
                                 discussionsFull.add(discussion)
+                                discussions.sortList()
                                 adapter?.notifyDataSetChanged()
                             }
                         }
@@ -126,6 +130,22 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                 }
             }
         }
+    }
+
+    private fun ArrayList<Discussion>.sortList() {
+        sortWith(Comparator { d1, d2 ->
+            d1.activityDate.compareTo(d2.activityDate);
+        })
+        reverse()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        discussions.clear()
+        discussionsFull.clear()
+        adapter?.notifyDataSetChanged()
+        val userId = getCurrentUser()?.uid ?: return
+        getDiscussionsFromUser(userId)
     }
 
     override fun onClick(o: Discussion) {
@@ -188,6 +208,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                 bottomSheetDialog?.dismiss()
                 viewModel?.deleteDiscussion(discussion.id)
                 discussions.clear()
+                discussionsFull.clear()
                 getDiscussionsFromUser(userUid)
             }
             it.bsd_confirm_no.setOnClickListener {
@@ -214,6 +235,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                             val discussionIds = u.discussionsId ?: ArrayList()
                             vm.removeDiscussionAndUser(discussion, userId, discussionIds)
                             discussions.clear()
+                            discussionsFull.clear()
                             getDiscussionsFromUser(userId)
                         }
                     }

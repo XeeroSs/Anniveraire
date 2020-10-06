@@ -3,10 +3,11 @@ package com.xeross.anniveraire.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestActivity
 import com.xeross.anniveraire.model.Gallery
@@ -21,8 +22,8 @@ class GalleryRequestAdapter(private val galleries: ArrayList<Gallery>,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageDiscussion: ImageView = itemView.discussion_request_image
         val nameDiscussion: TextView = itemView.discussion_request_text
-        val buttonJoin: Button = itemView.discussion_request_join
-        val buttonDeny: Button = itemView.discussion_request_deny
+        val buttonJoin: ImageButton = itemView.discussion_request_join
+        val buttonDeny: ImageButton = itemView.discussion_request_deny
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -45,5 +46,6 @@ class GalleryRequestAdapter(private val galleries: ArrayList<Gallery>,
 
     private fun updateItem(holder: ViewHolder, discussion: Gallery) {
         holder.nameDiscussion.text = discussion.name
+        Glide.with(context).load(context.resources.getDrawable(R.drawable.gallery)).into(holder.imageDiscussion)
     }
 }

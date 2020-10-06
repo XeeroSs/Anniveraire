@@ -77,12 +77,13 @@ class GalleryUserActivity : BaseActivity(), ClickListener<User> {
                 // delete
                 bottomSheetDialog.dismiss()
                 viewModel?.let { vm ->
+                    usersInGallery.clear()
+                    adapter?.notifyDataSetChanged()
                     vm.getUser(user.id).addOnSuccessListener { d ->
                         d.toObject(User::class.java)?.let { u ->
                             val galleryIds = u.galleriesId ?: ArrayList()
                             galleryIds.remove(galleryId)
                             vm.updateGalleryUser(u.id, galleryIds)
-                            usersInGallery.clear()
                             getUsers()
                         }
                     }

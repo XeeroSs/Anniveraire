@@ -88,4 +88,5 @@
     <string name="title_discussions">Discussions</string>
     <string name="title_galleries">Galleries</string>
     <string name="title_request">Requests</string>
+    <string name="requests_already_sent">Requests already sent.</string>
 </resources>

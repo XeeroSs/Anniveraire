@@ -72,7 +72,8 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
             }
 
             //Update Message Bubble Color Background
-            (textMessageContainer.background as GradientDrawable).setColor(if (isCurrentUser) colorCurrentUser else colorRemoteUser)
+            (textMessageContainer.background as GradientDrawable).setColor(if (isCurrentUser)
+                colorCurrentUser else colorRemoteUser)
 
             // Update all views alignment depending is current user or not
             updateDesignDependingUser(isCurrentUser)
@@ -81,31 +82,39 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
         private fun updateDesignDependingUser(isSender: Boolean) {
 
             // PROFILE CONTAINER
-            val paramsLayoutHeader = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            paramsLayoutHeader.addRule(if (isSender) RelativeLayout.ALIGN_PARENT_RIGHT else RelativeLayout.ALIGN_PARENT_LEFT)
+            val paramsLayoutHeader =
+                    RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT)
+            paramsLayoutHeader.addRule(if (isSender) RelativeLayout.ALIGN_PARENT_RIGHT
+            else RelativeLayout.ALIGN_PARENT_LEFT)
             profileContainer.layoutParams = paramsLayoutHeader
 
             // MESSAGE CONTAINER
-            val paramsLayoutContent = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            paramsLayoutContent.addRule(if (isSender) RelativeLayout.LEFT_OF else RelativeLayout.RIGHT_OF,
+            val paramsLayoutContent =
+                    RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT)
+            paramsLayoutContent.addRule(if (isSender) RelativeLayout.LEFT_OF
+            else RelativeLayout.RIGHT_OF,
                     R.id.message_cell_item_profile_container)
             messageContainer.layoutParams = paramsLayoutContent
 
             // CARDVIEW IMAGE SEND
             val paramsImageView = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT)
-            paramsImageView.addRule(if (isSender) RelativeLayout.ALIGN_LEFT else RelativeLayout.ALIGN_RIGHT, R.id.message_cell_item_message_container_text_message_container)
+            paramsImageView.addRule(if (isSender)
+                RelativeLayout.ALIGN_LEFT else RelativeLayout.ALIGN_RIGHT,
+                    R.id.message_cell_item_message_container_text_message_container)
             cardViewImageSent.layoutParams = paramsImageView
             rootView.requestLayout()
         }
 
         // ---
         private fun convertDateToHour(date: Date): String {
-            val dfTime: DateFormat = SimpleDateFormat("HH:mm")
+            val dfTime: DateFormat = SimpleDateFormat("dd/MM/yyyy à HH:mm")
             return dfTime.format(date)
         }
 
         init {
-            colorCurrentUser = ContextCompat.getColor(itemView.context, R.color.colorAccent)
+            colorCurrentUser = ContextCompat.getColor(itemView.context, R.color.colorGreen)
             colorRemoteUser = ContextCompat.getColor(itemView.context, R.color.colorPrimary)
         }
     }

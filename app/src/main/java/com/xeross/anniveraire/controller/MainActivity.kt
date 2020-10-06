@@ -11,9 +11,6 @@ import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.discussion.DiscussionsFragment
@@ -46,18 +43,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             return
         }
+        val transaction = supportFragmentManager.beginTransaction()
+        if (transaction.isEmpty) {
+            transaction.replace(R.id.nav_host_fragment, DiscussionsFragment().setFragment())
+            transaction.commit()
+        }
         home_action.setOnClickListener { select(R.id.home_action) }
         likes_action.setOnClickListener { select(R.id.likes_action) }
         profile_action.setOnClickListener { select(R.id.profile_action) }
         setSupportActionBar(toolbar)
-
-       /* val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        val appBarConfiguration =
-                AppBarConfiguration(setOf(R.id.navigation_galleries,
-                        R.id.navigation_discussions, R.id.navigation_birthday))
-        setupActionBarWithNavController(navController, appBarConfiguration)*/
     }
 
     private fun select(id: Int) {

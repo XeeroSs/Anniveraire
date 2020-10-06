@@ -30,7 +30,7 @@ class GalleryRequestActivity : BaseActivity() {
         viewModel?.let { vm ->
             vm.getUser(userId).addOnCompleteListener { taskUser ->
                 taskUser.result?.toObject(User::class.java)?.let { user ->
-                    user.galleriesRequestId?.forEach { gId ->
+                    user.galleriesRequestId.forEach { gId ->
                         vm.getGallery(gId).addOnCompleteListener { taskGallery ->
                             taskGallery.result?.toObject(Gallery::class.java)?.let { gallery ->
                                 galleries.add(gallery)
@@ -46,12 +46,13 @@ class GalleryRequestActivity : BaseActivity() {
     fun joinRequest(gallery: Gallery) {
         viewModel?.let { vm ->
             userId?.let {
+                galleries.clear()
+                adapterEvent?.notifyDataSetChanged()
                 vm.getUser(it).addOnCompleteListener { t ->
                     t.result?.toObject(User::class.java)?.let { user ->
-                        vm.galleryDeny(gallery, it, user.galleriesRequestId)
                         vm.updateGalleryAndUser(gallery, it, user.galleriesId)
+                        vm.galleryRemove(gallery, it, user.galleriesRequestId)
                         Toast.makeText(this, "Gallery join !", Toast.LENGTH_SHORT).show()
-                        galleries.clear()
                         getGalleriesFromUser(it)
                     }
                 }
@@ -62,11 +63,12 @@ class GalleryRequestActivity : BaseActivity() {
     fun deleteRequest(gallery: Gallery) {
         viewModel?.let { vm ->
             userId?.let {
+                galleries.clear()
+                adapterEvent?.notifyDataSetChanged()
                 vm.getUser(it).addOnCompleteListener { t ->
                     t.result?.toObject(User::class.java)?.let { user ->
-                        vm.galleryDeny(gallery, it, user.galleriesRequestId)
+                        vm.galleryRemove(gallery, it, user.galleriesRequestId)
                         Toast.makeText(this, "Gallery request delete !", Toast.LENGTH_SHORT).show()
-                        galleries.clear()
                         getGalleriesFromUser(it)
                     }
                 }

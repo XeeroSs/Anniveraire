@@ -31,7 +31,7 @@ class DiscussionRequestActivity : BaseActivity() {
         viewModel?.let { vm ->
             vm.getUser(userId).addOnCompleteListener { taskUser ->
                 taskUser.result?.toObject(User::class.java)?.let { user ->
-                    user.discussionsRequestId?.forEach { dId ->
+                    user.discussionsRequestId.forEach { dId ->
                         vm.getDiscussions(dId).addOnCompleteListener { taskDiscussion ->
                             taskDiscussion.result?.toObject(Discussion::class.java)?.let { discussion ->
                                 discussions.add(discussion)
@@ -47,12 +47,13 @@ class DiscussionRequestActivity : BaseActivity() {
     fun joinRequest(discussion: Discussion) {
         viewModel?.let { vm ->
             userId?.let {
+                discussions.clear()
+                adapterEvent?.notifyDataSetChanged()
                 vm.getUser(it).addOnCompleteListener { t ->
                     t.result?.toObject(User::class.java)?.let { user ->
-                        vm.discussionDeny(discussion, it, user.discussionsRequestId)
                         vm.updateDiscussionAndUser(discussion, it, user.discussionsId)
+                        vm.discussionRequestRemove(discussion, it, user.discussionsRequestId)
                         Toast.makeText(this, "Discussion join !", Toast.LENGTH_SHORT).show()
-                        discussions.clear()
                         getDiscussionsFromUser(it)
                     }
                 }
@@ -63,11 +64,12 @@ class DiscussionRequestActivity : BaseActivity() {
     fun deleteRequest(discussion: Discussion) {
         viewModel?.let { vm ->
             userId?.let {
+                discussions.clear()
+                adapterEvent?.notifyDataSetChanged()
                 vm.getUser(it).addOnCompleteListener { t ->
                     t.result?.toObject(User::class.java)?.let { user ->
-                        vm.discussionDeny(discussion, it, user.discussionsRequestId)
+                        vm.discussionRequestRemove(discussion, it, user.discussionsRequestId)
                         Toast.makeText(this, "Discussion delete !", Toast.LENGTH_SHORT).show()
-                        discussions.clear()
                         getDiscussionsFromUser(it)
                     }
                 }

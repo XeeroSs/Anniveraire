@@ -50,18 +50,18 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
     }
 
     private fun setOtherItem(holder: ViewHolder, dObject: Birthday) {
-        Glide.with(context).load(R.drawable.im_champagne).into(holder.imageEvent)
+        Glide.with(context).load(R.drawable.cake).into(holder.imageEvent)
         holder.dateEvent.text = UtilsDate.getDateWithoutYearInString(dObject.dateBirth, context)
         holder.ageEvent.visibility = View.GONE
     }
 
     private fun setEventBirthdayItem(holder: ViewHolder, dObject: Birthday) {
-        eventBirthday(holder, dObject, R.drawable.im_calendar_event)
+        eventBirthday(holder, dObject, R.drawable.cake)
         holder.remainingDaysEvent.setTextColor(context.resources.getColor(R.color.colorPrimary))
     }
 
     private fun setBirthdayItem(holder: ViewHolder, dObject: Birthday) {
-        eventBirthday(holder, dObject, R.drawable.im_birthday_cake)
+        eventBirthday(holder, dObject, R.drawable.cake)
     }
 
     private fun setName(holder: ViewHolder, dObject: Birthday) {

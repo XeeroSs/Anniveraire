@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
@@ -86,7 +87,11 @@ class MessageActivity : BaseActivity() {
                     vm.getUsers().whereEqualTo("email", targetEmail.toLowerCase(Locale.ROOT)).get().addOnSuccessListener {
                         it.documents.forEach { d ->
                             d.toObject(User::class.java)?.let { u ->
-                                val discussionsRequestId = u.discussionsRequestId ?: ArrayList()
+                                val discussionsRequestId = u.discussionsRequestId
+                                if(discussionsRequestId.contains(discussionId)) {
+                                    Toast.makeText(this, getString(R.string.requests_already_sent), Toast.LENGTH_SHORT).show()
+                                    return@addOnSuccessListener
+                                }
                                 discussionsRequestId.add(discussionId)
                                 vm.updateDiscussionsRequestUser(u.id, discussionsRequestId)
                                 Toast.makeText(this, getString(R.string.request_sent), Toast.LENGTH_SHORT).show()

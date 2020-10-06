@@ -6,11 +6,17 @@
     android:orientation="vertical"
     tools:context=".controller.discussion.request.DiscussionRequestActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/Anniversaire.AppBarOverlay">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/discussion_request_activity_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary" />
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/discussion_request_activity_recyclerview"

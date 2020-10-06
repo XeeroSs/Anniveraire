@@ -3,7 +3,9 @@ package com.xeross.anniveraire.controller.gallery
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.model.Gallery
+import java.util.*
 import java.util.concurrent.Executor
+import kotlin.collections.ArrayList
 
 class GalleryViewModel(private val executor: Executor) : ViewModel() {
 
@@ -52,11 +54,16 @@ class GalleryViewModel(private val executor: Executor) : ViewModel() {
         updateCountGalleriesId(gallery.id, gallery.usersId)
     }
 
+    private fun updateDateGallery(galleryId: String) {
+        databaseGalleryInstance.document(galleryId).update("activityDate", Calendar.getInstance().time)
+    }
+
     private fun updateCountGalleriesId(id: String, galleriesId: ArrayList<String>) {
-        databaseGalleryInstance.document(id).update("userId", galleriesId)
+        databaseGalleryInstance.document(id).update("usersId", galleriesId)
     }
 
     fun updateGalleries(id: String, imagesId: ArrayList<String>) {
         databaseGalleryInstance.document(id).update("imagesId", imagesId)
+        updateDateGallery(id)
     }
 }

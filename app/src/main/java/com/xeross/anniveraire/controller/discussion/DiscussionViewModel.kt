@@ -3,7 +3,9 @@ package com.xeross.anniveraire.controller.discussion
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.model.Discussion
+import java.util.*
 import java.util.concurrent.Executor
+import kotlin.collections.ArrayList
 
 class DiscussionViewModel(private val executor: Executor) : ViewModel() {
 
@@ -23,17 +25,6 @@ class DiscussionViewModel(private val executor: Executor) : ViewModel() {
     fun getDiscussion(discussionId: String) = databaseInstanceDiscussion.document(discussionId).get()
     fun getUser(userId: String) = databaseInstanceUsers.document(userId).get()
 
-    /*fun getDiscussions(): LiveData<List<Discussion>>? {
-        databaseInstance.get().addOnCompleteListener { task ->
-            task.result?.let { querySnapshot ->
-                querySnapshot.documents.forEach { document ->
-                    document.toObject(Discussion::class.java)?.let { discussion -> }
-                }
-            }
-        }
-        return null
-    }*/
-
     private fun updateCountDiscussionsUser(id: String, discussionsId: ArrayList<String>?) {
         databaseInstanceUsers.document(id).update("discussionsId", discussionsId)
     }
@@ -44,7 +35,7 @@ class DiscussionViewModel(private val executor: Executor) : ViewModel() {
     }
 
     private fun updateCountDiscussionsId(id: String, discussionsId: ArrayList<String>) {
-        databaseInstanceDiscussion.document(id).update("userId", discussionsId)
+        databaseInstanceDiscussion.document(id).update("usersId", discussionsId)
     }
 
     fun removeDiscussionAndUser(discussion: Discussion, userId: String, discussionsId: ArrayList<String>?) = executor.execute {

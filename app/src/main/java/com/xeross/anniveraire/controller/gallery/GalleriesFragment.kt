@@ -8,7 +8,6 @@ import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleriesAdapter
 import com.xeross.anniveraire.controller.BaseFragment
-import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestActivity
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Gallery
@@ -49,6 +48,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                                 viewModel?.createGallery(gallery, userId, user.galleriesId)
                                 Toast.makeText(context, "Gallery create !", Toast.LENGTH_SHORT).show()
                                 galleries.clear()
+                                galleriesFull.clear()
                                 getGalleriesFromUser(userId)
                                 alertDialog?.dismiss()
                             }
@@ -57,6 +57,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                         vm.updateGalleryName(view.bsd_discussion_edittext.text.toString(), galleryId)
                         Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
                         galleries.clear()
+                        galleriesFull.clear()
                         getGalleriesFromUser(userId)
                         alertDialog?.dismiss()
                     }
@@ -76,6 +77,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
         val userId = getCurrentUser()?.uid ?: return
         getGalleriesFromUser(userId)
     }
+
     override fun onRequest() {
         startActivity(Intent(activity, GalleryRequestActivity::class.java))
     }
@@ -118,6 +120,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                             taskGallery.result?.toObject(Gallery::class.java)?.let { gallery ->
                                 galleries.add(gallery)
                                 galleriesFull.add(gallery)
+                                galleries.sortList()
                                 adapter?.notifyDataSetChanged()
                             }
                         }
@@ -187,6 +190,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                 bottomSheetDialog?.dismiss()
                 viewModel?.deleteGallery(gallery.id)
                 galleries.clear()
+                galleriesFull.clear()
                 getGalleriesFromUser(userUid)
             }
             it.bsd_confirm_no.setOnClickListener {
@@ -194,6 +198,15 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
             }
         }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        galleries.clear()
+        galleriesFull.clear()
+        adapter?.notifyDataSetChanged()
+        val userId = getCurrentUser()?.uid ?: return
+        getGalleriesFromUser(userId)
     }
 
     private fun confirmLeave(gallery: Gallery) {
@@ -213,6 +226,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                             val galleryIds = u.galleriesId ?: ArrayList()
                             vm.removeGalleryAndUser(gallery, userId, galleryIds)
                             galleries.clear()
+                            galleriesFull.clear()
                             getGalleriesFromUser(userId)
                         }
                     }
@@ -225,4 +239,10 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
 
     }
 
+    private fun ArrayList<Gallery>.sortList() {
+        sortWith(Comparator { g1, g2 ->
+            g1.activityDate.compareTo(g2.activityDate);
+        })
+        reverse()
+    }
 }

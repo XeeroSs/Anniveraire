@@ -21,6 +21,8 @@
             android:id="@+id/message_cell_item_profile_container_profile_image"
             android:layout_width="50dip"
             android:layout_height="50dip"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
             app:srcCompat="@drawable/ic_users" />
 
     </LinearLayout>
@@ -28,16 +30,16 @@
     <!-- MESSAGE CONTAINER -->
     <RelativeLayout
         android:id="@+id/message_cell_item_message_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dip"
+        android:layout_height="100dip"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true">
 
         <!-- IMAGE SENT CONTAINER -->
         <androidx.cardview.widget.CardView
             android:id="@+id/message_cell_item_message_container_image_sent_cardview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dip"
+            android:layout_height="100dip"
             android:layout_alignParentTop="true"
             android:background="@drawable/button_radius_primary_color">
 

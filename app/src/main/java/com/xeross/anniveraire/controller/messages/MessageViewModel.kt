@@ -8,7 +8,9 @@ import com.google.firebase.firestore.Query
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.Message
 import com.xeross.anniveraire.model.User
+import java.util.*
 import java.util.concurrent.Executor
+import kotlin.collections.ArrayList
 
 class MessageViewModel(private val executor: Executor) : ViewModel() {
 
@@ -53,10 +55,16 @@ class MessageViewModel(private val executor: Executor) : ViewModel() {
 
     fun createMessageForChat(message: String, discussionId: String, user: User) {
         databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(userSender = user, message = message))
+        updateDateDiscussion(discussionId)
     }
 
     fun createMessageForChat(urlImage: String, message: String, discussionId: String, user: User) {
         databaseMessageInstance.document(discussionId).collection(MESSAGE_COLLECTION).add(Message(urlImage, user, message))
+        updateDateDiscussion(discussionId)
+    }
+
+    private fun updateDateDiscussion(discussionId: String) {
+        databaseDiscussionInstance.document(discussionId).update("activityDate", Calendar.getInstance().time)
     }
 
     fun updateDiscussionsRequestUser(id: String, discussionsRequestId: ArrayList<String>) {

@@ -20,33 +20,30 @@ class DiscussionRequestViewModel(private val executor: Executor) : ViewModel() {
     fun getDiscussions(discussionId: String) = databaseInstanceDiscussion.document(discussionId).get()
     fun getUser(userId: String) = databaseInstanceUsers.document(userId).get()
 
-    /*fun getDiscussions(): LiveData<List<Discussion>>? {
-        databaseInstance.get().addOnCompleteListener { task ->
-            task.result?.let { querySnapshot ->
-                querySnapshot.documents.forEach { document ->
-                    document.toObject(Discussion::class.java)?.let { discussion -> }
-                }
-            }
-        }
-        return null
-    }*/
-
     private fun updateCountDiscussionsUser(id: String, discussionsId: ArrayList<String>) {
         databaseInstanceUsers.document(id).update("discussionsId", discussionsId)
     }
-    private fun updateCountDiscussionsId(id: String, discussionsId: ArrayList<String>) {
-        databaseInstanceDiscussion.document(id).update("userId", discussionsId)
+
+    private fun updateCountUserDiscussionsId(id: String, usersId: ArrayList<String>) {
+        databaseInstanceDiscussion.document(id).update("usersId", usersId)
     }
 
     fun updateDiscussionAndUser(discussion: Discussion, userId: String, discussionsId: ArrayList<String>?) = executor.execute {
+        if (discussion.usersId.contains(userId)) return@execute
+        if (discussionsId == null) return@execute
+        if (discussionsId.contains(discussion.id)) return@execute
         discussion.usersId.add(userId)
-        discussionsId?.add(discussion.id)
-        discussionsId?.let { updateCountDiscussionsUser(userId, it) }
-        updateCountDiscussionsId(discussion.id, discussion.usersId)
+        discussionsId.add(discussion.id)
+        updateCountDiscussionsUser(userId, discussionsId)
+        updateCountUserDiscussionsId(discussion.id, discussion.usersId)
     }
 
-    fun discussionDeny(discussion: Discussion, userId: String, discussionsRequestId: ArrayList<String>?) {
+    fun discussionRequestRemove(discussion: Discussion, userId: String, discussionsRequestId: ArrayList<String>?) {
         discussionsRequestId?.remove(discussion.id)
-        discussionsRequestId?.let { updateCountDiscussionsUser(userId, it) }
+        discussionsRequestId?.let { updateCountDiscussionRequest(userId, it) }
+    }
+
+    private fun updateCountDiscussionRequest(id: String, discussionsRequestId: ArrayList<String>) {
+        databaseInstanceUsers.document(id).update("discussionsRequestId", discussionsRequestId)
     }
 }

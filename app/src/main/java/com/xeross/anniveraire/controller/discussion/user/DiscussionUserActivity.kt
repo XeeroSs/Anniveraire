@@ -76,12 +76,13 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
                 // delete
                 bottomSheetDialog.dismiss()
                 viewModel?.let { vm ->
+                    usersInDiscussion.clear()
+                    adapter?.notifyDataSetChanged()
                     vm.getUser(user.id).addOnSuccessListener { d ->
                         d.toObject(User::class.java)?.let { u ->
                             val discussionIds = u.discussionsId ?: ArrayList()
                             discussionIds.remove(discussionId)
                             vm.updateDiscussionsUser(u.id, discussionIds)
-                            usersInDiscussion.clear()
                             getUsers()
                         }
                     }
