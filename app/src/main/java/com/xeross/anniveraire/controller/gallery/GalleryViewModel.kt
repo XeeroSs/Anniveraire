@@ -62,7 +62,7 @@ class GalleryViewModel(private val executor: Executor) : ViewModel() {
         databaseGalleryInstance.document(id).update("usersId", galleriesId)
     }
 
-    fun updateGalleries(id: String, imagesId: ArrayList<String>) {
+    fun updateGallery(id: String, imagesId: ArrayList<String>) {
         databaseGalleryInstance.document(id).update("imagesId", imagesId)
         updateDateGallery(id)
     }

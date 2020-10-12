@@ -20,7 +20,7 @@ import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
 import kotlinx.android.synthetic.main.activity_gallery.*
-import kotlinx.android.synthetic.main.bsd_discussion.view.*
+import kotlinx.android.synthetic.main.bsd_item_leave.view.*
 import permissions.dispatcher.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -103,7 +103,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
                         dd.toObject(Gallery::class.java)?.let { g ->
                             val imagesId = g.imagesId
                             imagesId.add(pathImageSavedInFirebase.toString())
-                            vm.updateGalleries(galleryId, imagesId)
+                            vm.updateGallery(galleryId, imagesId)
                             getUrls()
                         }
                     }
@@ -151,6 +151,29 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         }
     }
 
+    private fun itemSelected(url: String) {
+        LayoutInflater.from(this).inflate(R.layout.bsd_delete, null).let {
+
+            val bottomSheetDialog = createBSD(it)
+
+            it.bsd_item_selected_leave.setOnClickListener {
+                viewModel?.let { vm ->
+                    vm.getGallery(galleryId).addOnSuccessListener { dd ->
+                        dd.toObject(Gallery::class.java)?.let { g ->
+                            val imagesId = g.imagesId
+                            imagesId.remove(url)
+                            vm.updateGallery(galleryId, imagesId)
+                            Toast.makeText(this, "Image delete !", Toast.LENGTH_SHORT).show()
+                            getUrls()
+                        }
+                    }
+                }
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+    }
+
     @OnShowRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showRationaleForPermission(request: PermissionRequest) {
         AlertDialog.Builder(this)
@@ -179,5 +202,6 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
     }
 
     override fun onLongClick(o: String) {
+        itemSelected(o)
     }
 }

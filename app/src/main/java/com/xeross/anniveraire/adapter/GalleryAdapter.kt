@@ -33,6 +33,10 @@ class GalleryAdapter(private val urls: ArrayList<String>,
         holder.image.setOnClickListener {
             clickListener.onClick(url)
         }
+        holder.image.setOnLongClickListener {
+            clickListener.onLongClick(url)
+            true
+        }
     }
 
     private fun updateItem(holder: ViewHolder, url: String) {
