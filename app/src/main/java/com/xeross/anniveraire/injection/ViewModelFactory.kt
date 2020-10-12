@@ -7,7 +7,7 @@ import com.xeross.anniveraire.controller.discussion.DiscussionViewModel
 import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestViewModel
 import com.xeross.anniveraire.controller.discussion.user.DiscussionUserViewModel
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
-import com.xeross.anniveraire.controller.gallery.GalleryUserViewModel
+import com.xeross.anniveraire.controller.gallery.user.GalleryUserViewModel
 import com.xeross.anniveraire.controller.gallery.GalleryViewModel
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestViewModel
 import com.xeross.anniveraire.controller.login.LoginViewModel

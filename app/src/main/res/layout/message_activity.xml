@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".controller.messages.MessageActivity">
 
@@ -15,6 +16,7 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/message_activity_toolbar"
             android:layout_width="match_parent"
+            app:title="Discussion"
             android:layout_height="?attr/actionBarSize"
             android:layout_alignParentTop="true"
             android:background="?attr/colorPrimary" />

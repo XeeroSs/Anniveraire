@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">Anniveraire</string>
+    <string name="app_name">FamilySocial</string>
     <string name="title_event">Date</string>
     <string name="title_birthday">Event</string>
     <string name="title_social">"Social "</string>
     <string name="january">January</string>
-    <string name="february">Febuary</string>
+    <string name="february">February</string>
     <string name="march">March</string>
     <string name="april">April</string>
     <string name="may">May</string>
@@ -89,4 +89,7 @@
     <string name="title_galleries">Galleries</string>
     <string name="title_request">Requests</string>
     <string name="requests_already_sent">Requests already sent.</string>
+    <string name="logout">Logout</string>
+    <string name="title_request_gallery">Gallery request</string>
+    <string name="title_request_discussion">Request discussion</string>
 </resources>

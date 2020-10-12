@@ -7,7 +7,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleriesAdapter
-import com.xeross.anniveraire.controller.BaseFragment
+import com.xeross.anniveraire.controller.base.BaseFragment
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Gallery
@@ -76,10 +76,6 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
         initializeRecyclerView()
         val userId = getCurrentUser()?.uid ?: return
         getGalleriesFromUser(userId)
-    }
-
-    override fun onRequest() {
-        startActivity(Intent(activity, GalleryRequestActivity::class.java))
     }
 
     override fun onSearch(searchView: SearchView) {

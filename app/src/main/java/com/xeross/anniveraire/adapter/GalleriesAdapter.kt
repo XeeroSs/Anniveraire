@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -22,7 +23,7 @@ class GalleriesAdapter(private val objectList: ArrayList<Gallery>,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameGallery: TextView = itemView.galleries_text
         val dateGallery: TextView = itemView.galleries_date
-        val cardView: CardView = itemView.galleries_item
+        val item: LinearLayout = itemView.galleries_item
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
@@ -34,12 +35,12 @@ class GalleriesAdapter(private val objectList: ArrayList<Gallery>,
     }
 
     override fun onClick(holder: ViewHolder, dObject: Gallery) {
-        holder.cardView.setOnLongClickListener {
+        holder.item.setOnLongClickListener {
             clickListener.onLongClick(dObject)
             true
         }
 
-        holder.cardView.setOnClickListener {
+        holder.item.setOnClickListener {
             clickListener.onClick(dObject)
         }
     }

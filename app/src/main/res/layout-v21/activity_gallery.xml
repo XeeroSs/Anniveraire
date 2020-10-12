@@ -35,17 +35,19 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/activity_gallery_fab"
+            style="@style/Widget.MaterialComponents.FloatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            app:backgroundTint="@android:color/transparent"
+            app:elevation="6dp"
+            app:fabSize="mini"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:background="@color/colorGreen"
-            android:backgroundTint="@color/colorPrimary"
-            android:tint="@color/colorWhite"
-            app:fabSize="normal"
-            android:src="@drawable/ic_add_light"/>
+            app:maxImageSize="45dp"
+            app:srcCompat="@drawable/plus"
+            app:tint="@null" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

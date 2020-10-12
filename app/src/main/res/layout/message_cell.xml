@@ -7,92 +7,93 @@
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/default_margin">
 
-    <!-- PROFILE CONTAINER -->
-    <LinearLayout
-        android:id="@+id/message_cell_item_profile_container"
+    <RelativeLayout
+        android:id="@+id/container_image_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/default_margin">
+        android:layout_marginTop="20dp">
 
-        <!-- IMAGE VIEW PROFILE -->
         <ImageView
-            android:id="@+id/message_cell_item_profile_container_profile_image"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            app:srcCompat="@drawable/ic_users" />
+            android:id="@+id/image_profile"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:scaleType="centerCrop" />
+    </RelativeLayout>
 
-    </LinearLayout>
-
-    <!-- MESSAGE CONTAINER -->
     <RelativeLayout
-        android:id="@+id/message_cell_item_message_container"
-        android:layout_width="100dip"
-        android:layout_height="100dip"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="true">
+        android:id="@+id/container_message_and_image_sent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/container_image_profile">
 
-        <!-- IMAGE SENT CONTAINER -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/message_cell_item_message_container_image_sent_cardview"
-            android:layout_width="100dip"
-            android:layout_height="100dip"
-            android:layout_alignParentTop="true"
-            android:background="@drawable/button_radius_primary_color">
-
-            <!-- IMAGE SENT -->
-            <ImageView
-                android:id="@+id/message_cell_item_message_container_image_sent_cardview_image"
-                android:layout_width="100dip"
-                android:layout_height="100dip"
-                android:scaleType="centerCrop" />
-
-        </androidx.cardview.widget.CardView>
-
-        <!-- TEXT MESSAGE CONTAINER -->
-        <LinearLayout
-            android:id="@+id/message_cell_item_message_container_text_message_container"
+        <RelativeLayout
+            android:id="@+id/container_name_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/message_cell_item_message_container_image_sent_cardview"
-            android:layout_margin="@dimen/default_margin"
-            android:layout_marginLeft="@dimen/default_margin"
-            android:layout_marginRight="@dimen/default_margin"
-            android:background="@drawable/ic_chat_message_background"
-            android:orientation="horizontal">
+            android:layout_marginBottom="5dp"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/name_user"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="@dimen/default_margin">
+                android:layout_marginTop="5dp"
+                android:textStyle="bold"
+                android:textSize="13sp"
+                tools:text="Nom d'utilisateur" />
 
-                <!-- TEXT MESSAGE -->
-                <TextView
-                    android:id="@+id/message_cell_item_message_container_text_message_container_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textIsSelectable="true"
-                    android:textSize="@dimen/default_text_size"
-                    tools:text="Text example" />
+        </RelativeLayout>
 
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- DATE MESSAGE -->
-        <TextView
-            android:id="@+id/message_cell_item_message_container_text_view_date"
+        <RelativeLayout
+            android:id="@+id/container_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/message_cell_item_message_container_text_message_container"
-            android:layout_alignRight="@id/message_cell_item_message_container_text_message_container"
-            android:layout_alignParentBottom="true"
-            android:textSize="@dimen/default_text_size_mini"
-            android:textStyle="bold" />
+            android:layout_marginTop="5dp"
+            android:background="@drawable/ic_chat_message_background"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                tools:text="Ce texte est simplement là pour tester." />
+            <!--    tools:text="Ce texte est simplement là pour tester son comportement lors de l'affichage." />-->
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/container_image_sent"
+            android:layout_width="100dp"
+            android:layout_marginTop="5dp"
+            android:layout_height="100dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="10dp">
+
+                <ImageView
+                    android:id="@+id/image_sent"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:scaleType="centerCrop" />
+
+            </androidx.cardview.widget.CardView>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/container_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                tools:text="12/04/2020 à 23:45" />
+        </RelativeLayout>
 
     </RelativeLayout>
 

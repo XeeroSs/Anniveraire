@@ -7,12 +7,11 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
-import com.xeross.anniveraire.controller.BaseFragment
+import com.xeross.anniveraire.controller.base.BaseFragment
 import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestActivity
 import com.xeross.anniveraire.controller.messages.MessageActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
-import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
 import kotlinx.android.synthetic.main.bsd_confirm.view.*
@@ -78,10 +77,6 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
         initializeRecyclerView()
         val userId = getCurrentUser()?.uid ?: return
         getDiscussionsFromUser(userId)
-    }
-
-    override fun onRequest() {
-        startActivity(Intent(activity, DiscussionRequestActivity::class.java))
     }
 
     override fun onSearch(searchView: SearchView) {

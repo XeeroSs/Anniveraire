@@ -1,4 +1,4 @@
-package com.xeross.anniveraire.controller
+package com.xeross.anniveraire.controller.base
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.xeross.anniveraire.R
+import com.xeross.anniveraire.controller.MainActivity
 import com.xeross.anniveraire.controller.discussion.DiscussionsFragment
 import com.xeross.anniveraire.controller.event.BirthdayFragment
 import com.xeross.anniveraire.controller.gallery.GalleriesFragment
