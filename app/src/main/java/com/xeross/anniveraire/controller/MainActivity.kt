@@ -48,7 +48,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             return
         }
-        setSupportActionBar(toolbar)
+        supportActionBar?.title = getString(R.string.app_name)
+      //  setSupportActionBar(toolbar)
         val transaction = supportFragmentManager.beginTransaction()
         if (transaction.isEmpty) {
             transaction.replace(R.id.nav_host_fragment, DiscussionsFragment().setFragment())
@@ -62,10 +63,10 @@ class MainActivity : AppCompatActivity() {
     private fun signOutUserFromFirebase() {
         AuthUI.getInstance()
                 .signOut(this)
-                .addOnSuccessListener(this, this.updateUIAfterRESTRequestsCompleted())
+                .addOnSuccessListener(this, this.logout())
     }
 
-    private fun updateUIAfterRESTRequestsCompleted() = OnSuccessListener<Void?> {
+    private fun logout() = OnSuccessListener<Void?> {
         val intent = Intent(this@MainActivity, LoginActivity::class.java)
         startActivity(intent)
     }

@@ -107,8 +107,8 @@ class GalleryUserActivity : BaseActivity(), ClickListener<User> {
         }
     }
 
-    override fun getToolBar() = R.id.activity_user_toolbar
     override fun getLayoutId() = R.layout.activity_users
+    override fun getToolBarTitle() = "Gallery members"
 
     override fun onClick(o: User) {}
 

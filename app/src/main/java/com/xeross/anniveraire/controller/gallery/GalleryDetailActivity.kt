@@ -19,7 +19,6 @@ class GalleryDetailActivity : BaseActivity() {
         } ?: finish()
     }
 
-    override fun getToolBar() = R.id.gallery_detail_activity_toolbar
-
     override fun getLayoutId() = R.layout.activity_gallery_detail
+    override fun getToolBarTitle()= "Picture"
 }

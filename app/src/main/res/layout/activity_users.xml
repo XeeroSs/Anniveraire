@@ -7,20 +7,6 @@
     android:orientation="vertical"
     tools:context=".controller.gallery.user.GalleryUserActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/Anniversaire.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/activity_user_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:title="Users" />
-    </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">

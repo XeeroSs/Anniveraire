@@ -76,9 +76,8 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         }
     }
 
-    override fun getToolBar() = R.id.gallery_activity_toolbar
-
     override fun getLayoutId() = R.layout.activity_gallery
+    override fun getToolBarTitle() = "Gallery"
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

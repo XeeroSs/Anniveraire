@@ -48,9 +48,8 @@ class MessageActivity : BaseActivity() {
         return true
     }
 
-    override fun getToolBar() = R.id.message_activity_toolbar
-
     override fun getLayoutId() = R.layout.message_activity
+    override fun getToolBarTitle() = "Chat"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

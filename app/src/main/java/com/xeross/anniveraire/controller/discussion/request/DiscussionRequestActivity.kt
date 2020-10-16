@@ -77,7 +77,6 @@ class DiscussionRequestActivity : BaseActivity() {
         }
     }
 
-    override fun getToolBar() = R.id.discussion_request_activity_toolbar
-
     override fun getLayoutId() = R.layout.activity_discussion_request
+    override fun getToolBarTitle() = "Discussion requests"
 }

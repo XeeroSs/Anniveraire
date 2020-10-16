@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -28,8 +29,8 @@ abstract class BaseActivity : AppCompatActivity() {
             startActivity(intent)
             return
         }
-        setSupportActionBar(findViewById(getToolBar()))
         supportActionBar?.let {
+            it.title = getToolBarTitle()
             it.setDisplayHomeAsUpEnabled(true)
             it.setDisplayShowHomeEnabled(true)
         }
@@ -58,9 +59,8 @@ abstract class BaseActivity : AppCompatActivity() {
         return ViewModelProviders.of(this, ViewModelFactory(this)).get(VM::class.java)
     }
 
-    protected abstract fun getToolBar(): Int
-
     protected abstract fun getLayoutId(): Int
+    protected abstract fun getToolBarTitle(): String
 
     protected fun RecyclerView.setRecyclerViewAdapter(adapter: RecyclerView.Adapter<*>, isCustom: Boolean = false) {
         setHasFixedSize(true)

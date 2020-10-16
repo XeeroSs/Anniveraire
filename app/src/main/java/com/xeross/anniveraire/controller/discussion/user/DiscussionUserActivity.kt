@@ -23,6 +23,7 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
     private var adapter: UserAdapter? = null
     private lateinit var discussionId: String
 
+    override fun getToolBarTitle() = "Discussion members"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent.getStringExtra(Constants.ID_DISCUSSION)?.let { s ->
@@ -110,7 +111,6 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User> {
         }
     }
 
-    override fun getToolBar() = R.id.activity_user_toolbar
     override fun getLayoutId() = R.layout.activity_users
 
     override fun onClick(o: User) {}

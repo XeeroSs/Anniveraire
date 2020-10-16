@@ -23,7 +23,7 @@ class GalleriesAdapter(private val objectList: ArrayList<Gallery>,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameGallery: TextView = itemView.galleries_text
         val dateGallery: TextView = itemView.galleries_date
-        val item: LinearLayout = itemView.galleries_item
+        val item: CardView = itemView.galleries_item
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

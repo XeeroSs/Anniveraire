@@ -50,7 +50,6 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
     }
 
     private fun setOtherItem(holder: ViewHolder, dObject: Birthday) {
-        Glide.with(context).load(R.drawable.cake).into(holder.imageEvent)
         holder.dateEvent.text = UtilsDate.getDateWithoutYearInString(dObject.dateBirth, context)
         holder.ageEvent.visibility = View.GONE
     }
@@ -73,7 +72,6 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
     }
 
     private fun eventBirthday(holder: ViewHolder, birthday: Birthday, imageDrawable: Int) {
-        Glide.with(context).load(imageDrawable).into(holder.imageEvent)
         holder.dateEvent.text = UtilsDate.getDateInString(birthday.dateBirth, context)
         holder.ageEvent.text = context.getString(R.string.age_event, UtilsDate.getAgeEvent(dateToday, birthday.dateBirth).plus(1))
     }

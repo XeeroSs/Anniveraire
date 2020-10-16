@@ -76,6 +76,6 @@ class GalleryRequestActivity : BaseActivity() {
         }
     }
 
-    override fun getToolBar() = R.id.gallery_request_activity_toolbar
     override fun getLayoutId() = R.layout.activity_gallery_request
+    override fun getToolBarTitle() = "Gallery requests"
 }

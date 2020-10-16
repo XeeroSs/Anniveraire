@@ -26,7 +26,7 @@ class UserAdapter(private val discussions: ArrayList<User>,
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageDiscussion: ImageView = itemView.discussion_user_image
         val nameDiscussion: TextView = itemView.discussion_user_text
-        val cardView: LinearLayout = itemView.discussion_user_item
+        val cardView: CardView = itemView.discussion_user_item
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
