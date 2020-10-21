@@ -1,18 +1,18 @@
 package com.xeross.anniveraire.utils
 
 object Constants {
+    // ID
     const val URL_IMAGE: String = "URL_IMAGE"
-
-    // Notification
-    const val CHANNEL_ID = "BIRTHDAY_CHANNEL_ID"
-    const val CHANNEL_NAME = "BIRTHDAY_CHANNEL_NAME"
-    const val CHANNEL_DESCRIPTION = "BIRTHDAY_CHANNEL_DESCRIPTION"
-    const val TEST_ID = 20
-
     const val ID_DISCUSSION = "ID_DISCUSSION"
     const val ID_GALLERY = "ID_GALLERY"
 
-    // Request Code
-    const val SOCIAL_FRAGMENT_REQUEST_CODE = 999
-    const val LOGIN_REQUEST_CODE = 998
+    // RC
+    const val RC_CHOOSE_PHOTO = 2
+    const val RC_SIGN_IN = 1
+
+    // Collections
+    const val USERS_COLLECTION = "users"
+    const val GALLERY_COLLECTION = "galleries"
+    const val MESSAGE_COLLECTION = "messages"
+    const val DISCUSSION_COLLECTION = "discussions"
 }

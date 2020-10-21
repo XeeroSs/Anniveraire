@@ -27,67 +27,67 @@
             android:padding="10dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/home_action"
+                android:id="@+id/chat_action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/round"
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/likes_action"
+                app:layout_constraintEnd_toStartOf="@+id/gallery_action"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/home_icon"
+                    android:id="@+id/chat_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:src="@drawable/ic_chat"
                     android:tint="#2c93ab"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/home_icon_text"
+                    app:layout_constraintEnd_toStartOf="@+id/chat_icon_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/home_icon_text"
+                    android:id="@+id/chat_icon_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Discussions"
                     android:textColor="#2c93ab"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/home_icon"
+                    app:layout_constraintStart_toEndOf="@+id/chat_icon"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/likes_action"
+                android:id="@+id/gallery_action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/round"
                 android:backgroundTint="@android:color/transparent"
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/profile_action"
-                app:layout_constraintStart_toEndOf="@+id/home_action"
+                app:layout_constraintEnd_toStartOf="@+id/birthday_action"
+                app:layout_constraintStart_toEndOf="@+id/chat_action"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/likes_icon"
+                    android:id="@+id/gallery_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:src="@drawable/ic_image"
                     android:tint="#c6419e"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/likes_icon_text"
+                    app:layout_constraintEnd_toStartOf="@+id/gallery_icon_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/likes_icon_text"
+                    android:id="@+id/gallery_icon_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Galleries"
@@ -95,12 +95,12 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/likes_icon"
+                    app:layout_constraintStart_toEndOf="@+id/gallery_icon"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/profile_action"
+                android:id="@+id/birthday_action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/round"
@@ -108,23 +108,23 @@
                 android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/likes_action"
+                app:layout_constraintStart_toEndOf="@+id/gallery_action"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/profile_icon"
+                    android:id="@+id/birthday_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:src="@drawable/ic_birthday_cake"
                     android:tint="#e3a916"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/profile_icon_text"
+                    app:layout_constraintEnd_toStartOf="@+id/birthday_icon_text"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/profile_icon_text"
+                    android:id="@+id/birthday_icon_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Birthdays"
@@ -132,7 +132,7 @@
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/profile_icon"
+                    app:layout_constraintStart_toEndOf="@+id/birthday_icon"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

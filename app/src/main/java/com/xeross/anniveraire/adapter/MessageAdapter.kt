@@ -29,18 +29,18 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val rootView: RelativeLayout = itemView.message_cell_root_view
-        val imageProfileContainer: RelativeLayout = itemView.container_image_profile
-        val imageProfile: ImageView = itemView.image_profile
-        val messageAndImageSentContainer: RelativeLayout = itemView.container_message_and_image_sent
-        val userNameContainer: RelativeLayout = itemView.container_name_user
-        val userName: TextView = itemView.name_user
-        val messageContainer: RelativeLayout = itemView.container_message
-        val message: TextView = itemView.message
-        val messageSentContainer: RelativeLayout = itemView.container_image_sent
-        val imageSent: ImageView = itemView.image_sent
-        val dateContainer: RelativeLayout = itemView.container_date
-        val date: TextView = itemView.date
+        private val rootView: RelativeLayout = itemView.message_cell_root_view
+        private val imageProfileContainer: RelativeLayout = itemView.container_image_profile
+        private val imageProfile: ImageView = itemView.image_profile
+        private val messageAndImageSentContainer: RelativeLayout = itemView.container_message_and_image_sent
+        private val userNameContainer: RelativeLayout = itemView.container_name_user
+        private val userName: TextView = itemView.name_user
+        private val messageContainer: RelativeLayout = itemView.container_message
+        private val message: TextView = itemView.message
+        private val messageSentContainer: RelativeLayout = itemView.container_image_sent
+        private val imageSent: ImageView = itemView.image_sent
+        private val dateContainer: RelativeLayout = itemView.container_date
+        private val date: TextView = itemView.date
 
         //FOR DATA
         private val colorCurrentUser: Int = ContextCompat.getColor(itemView.context,
@@ -52,17 +52,18 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
         private val colorTextRemoteUser: Int = ContextCompat.getColor(itemView.context,
                 R.color.colorBlack)
 
-        fun updateWithMessage(messageObject: Message, currentUserId: String?, glide: RequestManager) {
+        fun updateItem(messageObject: Message, currentUserId: String?, glide: RequestManager) {
 
             // Check if current user is the sender
             val isCurrentUser: Boolean = messageObject.userSender?.id.equals(currentUserId)
 
+            // Update username TextView
+            userName.text = messageObject.userSender?.userName
+
             // Update message TextView
             message.text = messageObject.message
-            userName.text = messageObject.userSender?.userName
+            // Update message color TextView
             message.setTextColor(if (isCurrentUser) colorTextCurrentUser else colorTextRemoteUser)
-            //message.textAlignment = if (isCurrentUser) View.TEXT_ALIGNMENT_TEXT_END
-            //else View.TEXT_ALIGNMENT_TEXT_START
 
             // Update date TextView
             messageObject.getDateCreated()?.let {
@@ -76,26 +77,21 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
 
             // Update image sent ImageView
             var hasImage = false
-            messageObject.urlImage?.let {
+            imageSent.visibility = messageObject.urlImage?.let {
                 hasImage = true
                 glide.load(it).into(imageSent)
-                //   if (imageSent.background != null) {
-                imageSent.visibility = View.VISIBLE
-                // } else imageSent.visibility = View.GONE
-            } ?: run {
-                imageSent.visibility = View.GONE
-            }
+                View.VISIBLE
+            } ?: View.GONE
 
-            //Update Message Bubble Color Background
+            // Update Message Bubble Color Background
             (messageContainer.background as GradientDrawable).setColor(if (isCurrentUser)
                 colorCurrentUser else colorRemoteUser)
 
             // Update all views alignment depending is current user or not
-            updateDesignDependingUser(isCurrentUser, hasImage)
+            updateDesign(isCurrentUser, hasImage)
         }
 
-        private fun updateDesignDependingUser(isSender: Boolean, hasImage: Boolean) {
-
+        private fun updateDesign(isSender: Boolean, hasImage: Boolean) {
             // Image Profile Container
             val imageProfileContainerLayout = RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
             imageProfileContainerLayout.addRule(if (isSender) RelativeLayout.ALIGN_PARENT_END
@@ -156,7 +152,7 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
             rootView.requestLayout()
         }
 
-        // ---
+        // Convert Date in String
         private fun convertDateToHour(date: Date): String {
             if (!DateUtils.isToday(date.time)) {
                 val dfTime: DateFormat = SimpleDateFormat("dd/MM/yyyy à HH:mm", Locale.ENGLISH)
@@ -169,7 +165,7 @@ class MessageAdapter(options: FirestoreRecyclerOptions<Message>,
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, model: Message) {
-        holder.updateWithMessage(model, this.idCurrentUser, this.glide)
+        holder.updateItem(model, this.idCurrentUser, this.glide)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Discussion
-import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.utils.UtilsDate
 import kotlinx.android.synthetic.main.discussion_cell.view.*
 import java.util.*

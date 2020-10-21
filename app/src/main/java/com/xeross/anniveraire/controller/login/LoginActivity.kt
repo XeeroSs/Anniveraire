@@ -3,36 +3,24 @@ package com.xeross.anniveraire.controller.login
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.model.User
+import com.xeross.anniveraire.utils.Constants.RC_SIGN_IN
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.coordinator.*
 
 
 class LoginActivity : AppCompatActivity() {
 
-    private var viewModel: LoginViewModel? = null
-
-    companion object {
-        const val RC_SIGN_IN = 1
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         supportActionBar?.title = "Login"
-        configureViewModel<LoginViewModel>(ViewModelFactory(this))?.let {
-            viewModel = it
-        }
         login_activity_button_login_google.setOnClickListener {
             startSignInActivity(AuthUI.IdpConfig.GoogleBuilder().build())
         }
@@ -49,35 +37,25 @@ class LoginActivity : AppCompatActivity() {
                 .build(), RC_SIGN_IN)
     }
 
-    private fun getCurrentUser(): FirebaseUser? {
-        return FirebaseAuth.getInstance().currentUser
-    }
-
-
-    // ViewModel for Fragment
-    private inline fun <reified VM : ViewModel> configureViewModel(viewModelFactory: ViewModelFactory): VM? {
-        return ViewModelProviders.of(this, viewModelFactory).get(VM::class.java)
-    }
+    // Get current user from FirebaseAuth
+    private fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
 
     private fun createUserInFirebase() {
         getCurrentUser()?.let {
-            viewModel?.let { vm ->
-                vm.getUser(it.uid).addOnSuccessListener { ds ->
-                    val user = ds.toObject(User::class.java)
-                    val email = it.email
-                    val username = user?.userName ?: it.displayName
-                    val urlPicture = if (user == null) if (it.photoUrl != null) it.photoUrl.toString() else null else user.urlImage
-                    val uid = it.uid
-                    val discussionId = user?.discussionsId ?: ArrayList()
-                    val galleriesId = user?.galleriesId ?: ArrayList()
-                    val discussionRequestId = user?.discussionsRequestId ?: ArrayList()
-                    val galleriesRequestId = user?.galleriesRequestId ?: ArrayList()
-                    vm.createUser(uid, email, username, urlPicture, discussionId = discussionId, discussionRequestId = discussionRequestId, galleriesId = galleriesId, galleriesRequestId = galleriesRequestId)
-                    finish()
-                }
+            LoginHelper.getUser(it.uid).addOnSuccessListener { ds ->
+                val user = ds.toObject(User::class.java)
+                val email = it.email
+                val username = user?.userName ?: it.displayName
+                val urlPicture = if (user == null) if (it.photoUrl != null) it.photoUrl.toString() else null else user.urlImage
+                val uid = it.uid
+                val discussionId = user?.discussionsId ?: ArrayList()
+                val galleriesId = user?.galleriesId ?: ArrayList()
+                val discussionRequestId = user?.discussionsRequestId ?: ArrayList()
+                val galleriesRequestId = user?.galleriesRequestId ?: ArrayList()
+                LoginHelper.createUser(uid, email, username, urlPicture, discussionId = discussionId, discussionRequestId = discussionRequestId, galleriesId = galleriesId, galleriesRequestId = galleriesRequestId)
+                finish()
             }
         }
-        finish()
     }
 
     // Get login response

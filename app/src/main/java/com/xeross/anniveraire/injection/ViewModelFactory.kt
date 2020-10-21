@@ -7,10 +7,9 @@ import com.xeross.anniveraire.controller.discussion.DiscussionViewModel
 import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestViewModel
 import com.xeross.anniveraire.controller.discussion.user.DiscussionUserViewModel
 import com.xeross.anniveraire.controller.event.BirthdayViewModel
-import com.xeross.anniveraire.controller.gallery.user.GalleryUserViewModel
 import com.xeross.anniveraire.controller.gallery.GalleryViewModel
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestViewModel
-import com.xeross.anniveraire.controller.login.LoginViewModel
+import com.xeross.anniveraire.controller.gallery.user.GalleryUserViewModel
 import com.xeross.anniveraire.controller.messages.MessageViewModel
 import com.xeross.anniveraire.database.BirthdayDataRepository
 import com.xeross.anniveraire.database.BirthdayDatabase
@@ -26,14 +25,13 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
                 BirthdayViewModel(BirthdayDataRepository(
                         BirthdayDatabase.getInstance(context)?.birthdayDAO()), executor)
             }
-            getViewModel<DiscussionViewModel>(modelClass) -> DiscussionViewModel(executor)
-            getViewModel<LoginViewModel>(modelClass) -> LoginViewModel(executor)
+            getViewModel<DiscussionViewModel>(modelClass) -> DiscussionViewModel()
             getViewModel<GalleryUserViewModel>(modelClass) -> GalleryUserViewModel()
-            getViewModel<GalleryViewModel>(modelClass) -> GalleryViewModel(executor)
+            getViewModel<GalleryViewModel>(modelClass) -> GalleryViewModel()
             getViewModel<DiscussionUserViewModel>(modelClass) -> DiscussionUserViewModel()
-            getViewModel<DiscussionRequestViewModel>(modelClass) -> DiscussionRequestViewModel(executor)
-            getViewModel<MessageViewModel>(modelClass) -> MessageViewModel(executor)
-            getViewModel<GalleryRequestViewModel>(modelClass) -> GalleryRequestViewModel(executor)
+            getViewModel<DiscussionRequestViewModel>(modelClass) -> DiscussionRequestViewModel()
+            getViewModel<MessageViewModel>(modelClass) -> MessageViewModel()
+            getViewModel<GalleryRequestViewModel>(modelClass) -> GalleryRequestViewModel()
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         } as VM
     }

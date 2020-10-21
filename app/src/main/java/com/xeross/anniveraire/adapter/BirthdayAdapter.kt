@@ -4,11 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Birthday
@@ -23,7 +21,6 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
         BaseAdapter<BirthdayAdapter.ViewHolder, Birthday>(objectList, objectListFull, context, clickListener) {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageEvent: ImageView = itemView.birthday_cell_image
         val nameEvent: TextView = itemView.birthday_cell_name
         val dateEvent: TextView = itemView.birthday_cell_date
         val ageEvent: TextView = itemView.birthday_cell_age
@@ -54,13 +51,14 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
         holder.ageEvent.visibility = View.GONE
     }
 
+    @Suppress("DEPRECATION")
     private fun setEventBirthdayItem(holder: ViewHolder, dObject: Birthday) {
-        eventBirthday(holder, dObject, R.drawable.cake)
+        eventBirthday(holder, dObject)
         holder.remainingDaysEvent.setTextColor(context.resources.getColor(R.color.colorPrimary))
     }
 
     private fun setBirthdayItem(holder: ViewHolder, dObject: Birthday) {
-        eventBirthday(holder, dObject, R.drawable.cake)
+        eventBirthday(holder, dObject)
     }
 
     private fun setName(holder: ViewHolder, dObject: Birthday) {
@@ -71,7 +69,7 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
         holder.remainingDaysEvent.text = context.getString(R.string.remaining_days, UtilsDate.getRemainingDays(dateToday, date))
     }
 
-    private fun eventBirthday(holder: ViewHolder, birthday: Birthday, imageDrawable: Int) {
+    private fun eventBirthday(holder: ViewHolder, birthday: Birthday) {
         holder.dateEvent.text = UtilsDate.getDateInString(birthday.dateBirth, context)
         holder.ageEvent.text = context.getString(R.string.age_event, UtilsDate.getAgeEvent(dateToday, birthday.dateBirth).plus(1))
     }
@@ -81,9 +79,5 @@ class BirthdayAdapter(objectList: ArrayList<Birthday>, objectListFull: ArrayList
             clickListener.onLongClick(dObject)
             true
         }
-
-        /* holder.cardView.setOnClickListener {
-             clickListener.onClick(dObject)
-         }*/
     }
 }

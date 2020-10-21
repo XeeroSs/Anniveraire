@@ -6,19 +6,20 @@ import com.xeross.anniveraire.model.Birthday
 import java.util.concurrent.Executor
 
 class BirthdayViewModel(private val birthdayDataRepository: BirthdayDataRepository?,
-                        private val executor: Executor
-        /*private val context: Context*/) : ViewModel() {
+                        private val executor: Executor) : ViewModel() {
 
+    // DELETE EVENT
     fun deleteBirthday(id: Int) = birthdayDataRepository?.deleteBirthday(id)
 
     fun getBirthday(id: Int) = birthdayDataRepository?.getBirthday(id)
     fun getBirthdays() = birthdayDataRepository?.getBirthdays()
 
-    // CREATE PROPERTY
+    // CREATE EVENT
     fun createBirthday(birthday: Birthday) = executor.execute {
         birthdayDataRepository?.createBirthday(birthday)
     }
 
+    // UPDATE EVENT
     fun updateBirthday(birthday: Birthday) = executor.execute {
         birthdayDataRepository?.updateBirthday(birthday)
     }

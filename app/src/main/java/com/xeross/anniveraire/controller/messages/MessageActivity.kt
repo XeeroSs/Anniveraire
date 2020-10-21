@@ -5,8 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.text.TextUtils
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -22,11 +20,10 @@ import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.MessageAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
 import com.xeross.anniveraire.controller.discussion.user.DiscussionUserActivity
-import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.Message
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.ID_DISCUSSION
-import kotlinx.android.synthetic.main.bsd_discussion.view.*
+import com.xeross.anniveraire.utils.Constants.RC_CHOOSE_PHOTO
 import kotlinx.android.synthetic.main.message_activity.*
 import permissions.dispatcher.*
 import java.util.*
@@ -34,13 +31,17 @@ import java.util.*
 @RuntimePermissions
 class MessageActivity : BaseActivity() {
 
-    companion object {
-        const val RC_CHOOSE_PHOTO = 1
-    }
+    // Non null
+    private lateinit var userId: String
 
-    private var user: User? = null
+    // Non null
+    private lateinit var user: User
+
+    // Non null
     private lateinit var discussionId: String
-    private var viewModel: MessageViewModel? = null
+
+    // Non null
+    private lateinit var viewModel: MessageViewModel
     private var uriImageSelected: Uri? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -53,73 +54,76 @@ class MessageActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        intent.getStringExtra(ID_DISCUSSION)?.let { s ->
-            viewModel = configureViewModel()
-            discussionId = s
-            this.configureRecyclerView(s)
-            this.getCurrentUserFromFirestore()
-            this.onClickSendMessage()
-            this.onClickSendImage()
-        } ?: finish()
+        userId = getCurrentUser()?.uid ?: return finish()
+        viewModel = configureViewModel() ?: return finish()
+        viewModel.getUser(userId).observe(this, androidx.lifecycle.Observer {
+            it?.let { user ->
+                this.user = user
+            } ?: finish()
+            intent.getStringExtra(ID_DISCUSSION)?.let { s ->
+                discussionId = s
+                this.initializeRecyclerView(s)
+                this.onClickSendMessage()
+                this.onClickSendImage()
+            } ?: finish()
+        })
     }
 
+    // Click Toolbar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
             R.id.toolbar_options -> {
-                val intent = Intent(this, DiscussionUserActivity::class.java)
-                intent.putExtra(ID_DISCUSSION, discussionId)
-                startActivity(intent)
+                startActivity()
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
+    // start activity discussion members
+    private fun startActivity() {
+        val intent = Intent(this, DiscussionUserActivity::class.java)
+        intent.putExtra(ID_DISCUSSION, discussionId)
+        startActivity(intent)
+    }
+
+    // send message
     private fun onClickSendMessage() {
         activity_message_chat_send_button.setOnClickListener {
             activity_message_chat_message_edit_text.takeIf { !TextUtils.isEmpty(activity_message_chat_message_edit_text.text) }?.let {
-                user?.let { u ->
-                    if (activity_message_chat_image_chosen_preview.drawable == null) {
-                        // SEND A TEXT MESSAGE
-                        viewModel?.createMessageForChat(it.text.toString(), discussionId, u)
-                        it.setText("")
-                    } else {
-                        // SEND A IMAGE + TEXT IMAGE
-                        this.uploadPhotoInFirebaseAndSendMessage(it.text.toString(), discussionId, u)
-                        it.setText("")
-                        activity_message_chat_image_chosen_preview.setImageDrawable(null)
-                    }
+                if (activity_message_chat_image_chosen_preview.drawable == null) {
+                    // SEND A TEXT MESSAGE
+                    viewModel.createMessageForChat(it.text.toString(), discussionId, user)
+                    it.setText("")
+                } else {
+                    // SEND A IMAGE + TEXT IMAGE
+                    this.uploadPictureAndSendMessage(it.text.toString(), discussionId, user)
+                    it.setText("")
+                    activity_message_chat_image_chosen_preview.setImageDrawable(null)
                 }
             }
         }
     }
 
-    private fun uploadPhotoInFirebaseAndSendMessage(message: String, discussionId: String, user: User) {
-        val uuid = UUID.randomUUID().toString() // GENERATE UNIQUE STRING
-        // UPLOAD TO GCS
+    // Upload image and get url
+    private fun uploadPictureAndSendMessage(message: String, discussionId: String, user: User) {
+        val uuid = UUID.randomUUID().toString()
         val imageRef = FirebaseStorage.getInstance().getReference(uuid)
         uriImageSelected?.let { uri ->
             imageRef.putFile(uri).addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
                     // SAVE MESSAGE IN FIRESTORE
-                    viewModel?.createMessageForChat(pathImageSavedInFirebase.toString(), message,
+                    viewModel.createMessageForChat(pathImageSavedInFirebase.toString(), message,
                             discussionId, user)
                 }
             }
         }
     }
 
+    // click button add image
     private fun onClickSendImage() {
         activity_message_chat_add_file_button.setOnClickListener {
             showGalleryWithPermissionCheck()
-        }
-    }
-
-    private fun getCurrentUserFromFirestore() {
-        getCurrentUser()?.let { u ->
-            viewModel?.getUser(u.uid)?.addOnSuccessListener {
-                user = it.toObject(User::class.java)
-            }
         }
     }
 
@@ -133,38 +137,37 @@ class MessageActivity : BaseActivity() {
         onRequestPermissionsResult(requestCode, grantResults)
     }
 
-    private fun configureRecyclerView(discussionId: String) {
-        viewModel?.let { vm ->
-            activity_message_chat_recycler_view.run {
-                getCurrentUser()?.let { u ->
-                    adapter = MessageAdapter(generateOptionsForAdapter(vm.getAllMessageForChat(discussionId)), Glide.with(this), u.uid).also {
-                        it.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
-                            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-                                smoothScrollToPosition(it.itemCount) // Scroll to bottom on new messages
-                            }
-                        });
-                        layoutManager = LinearLayoutManager(this@MessageActivity)
-                        this.adapter = it
+    // Initialize recyclerView
+    private fun initializeRecyclerView(discussionId: String) {
+        activity_message_chat_recycler_view.run {
+            adapter = MessageAdapter(generateOptionsForAdapter(
+                    viewModel.getAllMessageForChat(discussionId)),
+                    Glide.with(this), userId).also {
+                it.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+                    override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                        smoothScrollToPosition(it.itemCount) // Scroll to bottom on new messages
                     }
-                }
+                })
+                layoutManager = LinearLayoutManager(this@MessageActivity)
+                this.adapter = it
             }
         }
     }
 
+    // Launch selection image activity
     @NeedsPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showGallery() {
-        // 3 - Launch an "Selection Image" Activity
         val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(i, RC_CHOOSE_PHOTO)
     }
 
-    // 4 - Handle activity response (after user has chosen or not a picture)
+    // Handle activity response (after user has chosen or not a picture)
     private fun handleResponse(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_CHOOSE_PHOTO) {
-            if (resultCode == RESULT_OK) { //SUCCESS
+            if (resultCode == RESULT_OK) {
                 data?.let {
                     this.uriImageSelected = it.data
-                    Glide.with(this) //SHOWING PREVIEW OF IMAGE
+                    Glide.with(this) // Showing preview of image
                             .load(this.uriImageSelected)
                             .apply(RequestOptions.circleCropTransform())
                             .into(this.activity_message_chat_image_chosen_preview)
@@ -196,6 +199,7 @@ class MessageActivity : BaseActivity() {
         Toast.makeText(this, getString(R.string.missing_permission), Toast.LENGTH_SHORT).show()
     }
 
+    // Options for recyclerView
     private fun generateOptionsForAdapter(query: Query) = FirestoreRecyclerOptions.Builder<Message>()
             .setQuery(query, Message::class.java)
             .setLifecycleOwner(this)

@@ -66,12 +66,12 @@ object UtilsDate {
         return (diff / (24 * 60 * 60 * 1000)).toInt()
     }
 
-    fun getStringInDate(dateString: String): Date = SimpleDateFormat("dd/MM/yyyy").parse(dateString)
+    fun getStringInDate(dateString: String): Date? = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).parse(dateString)
 
     fun getDateWithHourInString(date: Date): String =
-            SimpleDateFormat("dd/MM/yyyy HH:mm").format(date)
+            SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ENGLISH).format(date)
 
-    fun getDateInString(date: Date): String = SimpleDateFormat("dd/MM/yyyy").format(date)
+    fun getDateInString(date: Date): String = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).format(date)
 
     fun getDateInString(date: Date, context: Context): String {
         val calendar = Calendar.getInstance()
@@ -81,18 +81,6 @@ object UtilsDate {
         val month = getMonthInString(calendar, context)
 
         return context.getString(R.string.format_date, day, month, year)
-    }
-
-    fun getDateWithHourInString(date: Date, context: Context): String {
-        val calendar = Calendar.getInstance()
-        calendar.time = date
-        val day = calendar.get(Calendar.DAY_OF_MONTH)
-        val year = calendar.get(Calendar.YEAR)
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val minute = calendar.get(Calendar.MINUTE)
-        val month = getMonthInString(calendar, context)
-
-        return context.getString(R.string.format_date_with_hour, day, month, year, hour, minute)
     }
 
     fun getDateWithoutYearInString(date: Date, context: Context): CharSequence? {

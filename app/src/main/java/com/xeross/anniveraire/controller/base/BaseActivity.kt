@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.login.LoginActivity
 import com.xeross.anniveraire.injection.ViewModelFactory
@@ -36,15 +34,10 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    protected fun getCurrentUser(): FirebaseUser? {
-        return FirebaseAuth.getInstance().currentUser
-    }
+    protected fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
 
     protected fun sendMissingInformationMessage() {
-        Toast.makeText(
-                this, getString(R.string.missing_information),
-                Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(this, getString(R.string.missing_information), Toast.LENGTH_SHORT).show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -55,6 +48,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     // ViewModel for Fragment
+    @Suppress("DEPRECATION")
     protected inline fun <reified VM : ViewModel> configureViewModel(): VM? {
         return ViewModelProviders.of(this, ViewModelFactory(this)).get(VM::class.java)
     }
@@ -73,5 +67,4 @@ abstract class BaseActivity : AppCompatActivity() {
         setContentView(view)
         show()
     }
-
 }

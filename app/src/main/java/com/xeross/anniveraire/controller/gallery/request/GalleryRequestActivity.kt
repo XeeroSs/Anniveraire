@@ -2,80 +2,81 @@ package com.xeross.anniveraire.controller.gallery.request
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import com.xeross.anniveraire.R
-import com.xeross.anniveraire.adapter.GalleryRequestAdapter
+import com.xeross.anniveraire.adapter.RequestAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
+import com.xeross.anniveraire.listener.RequestListener
 import com.xeross.anniveraire.model.Gallery
-import com.xeross.anniveraire.model.User
 import kotlinx.android.synthetic.main.activity_gallery_request.*
 
-class GalleryRequestActivity : BaseActivity() {
-    private var viewModel: GalleryRequestViewModel? = null
-    private var adapterEvent: GalleryRequestAdapter? = null
-    private val galleries = ArrayList<Gallery>()
-    private var userId: String? = null
+// Activity grouping the user's gallery invitations
+class GalleryRequestActivity : BaseActivity(), RequestListener<Gallery> {
 
+    private lateinit var viewModel: GalleryRequestViewModel
+    private var adapter: RequestAdapter<Gallery>? = null
+    private val galleries = ArrayList<Gallery>()
+    private lateinit var userId: String
+
+    // Create activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = configureViewModel()
-        GalleryRequestAdapter(galleries, this).let {
-            adapterEvent = it
+        userId = getCurrentUser()?.uid ?: return finish()
+        viewModel = configureViewModel() ?: return finish()
+        initializeRecyclerView()
+        getGalleriesFromUser()
+    }
+
+    // Initialize recyclerView
+    private fun initializeRecyclerView() {
+        RequestAdapter(this, galleries, this).let {
+            adapter = it
             gallery_request_activity_recyclerview.setRecyclerViewAdapter(it)
         }
-        userId = getCurrentUser()?.uid ?: return
-        userId?.let { getGalleriesFromUser(it) }
     }
 
-    private fun getGalleriesFromUser(userId: String) {
-        viewModel?.let { vm ->
-            vm.getUser(userId).addOnCompleteListener { taskUser ->
-                taskUser.result?.toObject(User::class.java)?.let { user ->
-                    user.galleriesRequestId.forEach { gId ->
-                        vm.getGallery(gId).addOnCompleteListener { taskGallery ->
-                            taskGallery.result?.toObject(Gallery::class.java)?.let { gallery ->
-                                galleries.add(gallery)
-                                adapterEvent?.notifyDataSetChanged()
-                            }
-                        }
-                    }
-                }
+    // get all galleries from user
+    private fun getGalleriesFromUser() {
+        viewModel.getGalleriesFromUser(userId).observe(this, Observer {
+            it?.let {
+                galleries.addAll(it)
+                adapter?.notifyDataSetChanged()
             }
-        }
+        })
     }
 
-    fun joinRequest(gallery: Gallery) {
-        viewModel?.let { vm ->
-            userId?.let {
-                galleries.clear()
-                adapterEvent?.notifyDataSetChanged()
-                vm.getUser(it).addOnCompleteListener { t ->
-                    t.result?.toObject(User::class.java)?.let { user ->
-                        vm.updateGalleryAndUser(gallery, it, user.galleriesId)
-                        vm.galleryRemove(gallery, it, user.galleriesRequestId)
-                        Toast.makeText(this, "Gallery join !", Toast.LENGTH_SHORT).show()
-                        getGalleriesFromUser(it)
-                    }
-                }
-            }
-        }
-    }
-
-    fun deleteRequest(gallery: Gallery) {
-        viewModel?.let { vm ->
-            userId?.let {
-                galleries.clear()
-                adapterEvent?.notifyDataSetChanged()
-                vm.getUser(it).addOnCompleteListener { t ->
-                    t.result?.toObject(User::class.java)?.let { user ->
-                        vm.galleryRemove(gallery, it, user.galleriesRequestId)
-                        Toast.makeText(this, "Gallery request delete !", Toast.LENGTH_SHORT).show()
-                        getGalleriesFromUser(it)
-                    }
-                }
-            }
-        }
-    }
-
+    // UI
     override fun getLayoutId() = R.layout.activity_gallery_request
     override fun getToolBarTitle() = "Gallery requests"
+
+    // When a user accepts a request
+    override fun join(dObject: Gallery) {
+        updateRecyclerView()
+        viewModel.getUser(userId).observe(this, Observer {
+            it?.let { user ->
+                viewModel.joinGallery(dObject, userId, user.galleriesId)
+                viewModel.removeGalleryRequest(dObject, userId, user.galleriesRequestId)
+                Toast.makeText(this, "Gallery join !", Toast.LENGTH_SHORT).show()
+                getGalleriesFromUser()
+            }
+        })
+    }
+
+    // When a user refuses an invitation
+    override fun deny(dObject: Gallery) {
+        updateRecyclerView()
+        viewModel.getUser(userId).observe(this, Observer {
+            it?.let { user ->
+                viewModel.removeGalleryRequest(dObject, userId, user.galleriesRequestId)
+                Toast.makeText(this, "Gallery request delete !", Toast.LENGTH_SHORT).show()
+                getGalleriesFromUser()
+            }
+        })
+    }
+
+    // Update recyclerView
+    private fun updateRecyclerView() {
+        galleries.clear()
+        adapter?.notifyDataSetChanged()
+    }
 }

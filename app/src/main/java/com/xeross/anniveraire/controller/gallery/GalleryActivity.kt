@@ -1,5 +1,6 @@
 package com.xeross.anniveraire.controller.gallery
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -16,9 +17,8 @@ import com.xeross.anniveraire.adapter.GalleryAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
 import com.xeross.anniveraire.controller.gallery.user.GalleryUserActivity
 import com.xeross.anniveraire.listener.ClickListener
-import com.xeross.anniveraire.model.Gallery
-import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
+import com.xeross.anniveraire.utils.Constants.RC_CHOOSE_PHOTO
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.bsd_item_leave.view.*
 import permissions.dispatcher.*
@@ -28,15 +28,17 @@ import kotlin.collections.ArrayList
 @RuntimePermissions
 class GalleryActivity : BaseActivity(), ClickListener<String> {
 
-    companion object {
-        const val RC_CHOOSE_PHOTO = 2
-    }
-
     private val urls = ArrayList<String>()
     private var adapter: GalleryAdapter? = null
-    private var user: User? = null
+
+    // Non null
+    private lateinit var userId: String
+
+    // Non null
     private lateinit var galleryId: String
-    private var viewModel: GalleryViewModel? = null
+
+    // Non null
+    private lateinit var viewModel: GalleryViewModel
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu_group, menu)
@@ -48,77 +50,80 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
             galleryId = s
         } ?: finish()
+        viewModel = configureViewModel() ?: return finish()
+        userId = getCurrentUser()?.uid ?: return finish()
+        onClick()
+        initializeRecyclerView()
+        getUrls()
+    }
 
-        viewModel = configureViewModel()
-        getCurrentUserFromFirestore()
-        activity_gallery_fab.setOnClickListener {
-            showGalleryWithPermissionCheck()
-        }
+    // Initialize recyclerView
+    private fun initializeRecyclerView() {
         GalleryAdapter(urls, this, this).let {
             adapter = it
             gallery_activity_recyclerview.layoutManager = GridLayoutManager(this, 3)
             gallery_activity_recyclerview.setRecyclerViewAdapter(it, true)
         }
-        getUrls()
     }
 
+    // Click UI
+    private fun onClick() {
+        activity_gallery_fab.setOnClickListener {
+            showGalleryWithPermissionCheck()
+        }
+    }
+
+    // Get image's urls of gallery
     private fun getUrls() {
         urls.clear()
-        viewModel?.let { vm ->
-            vm.getGallery(galleryId).addOnSuccessListener { d ->
-                d.toObject(Gallery::class.java)?.let { g ->
-                    g.imagesId.forEach {
-                        urls.add(it)
-                        adapter?.notifyDataSetChanged()
-                    }
+        viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
+            it?.let { gallery ->
+                gallery.imagesId.forEach { url ->
+                    urls.add(url)
+                    adapter?.notifyDataSetChanged()
                 }
             }
-        }
+        })
     }
 
     override fun getLayoutId() = R.layout.activity_gallery
     override fun getToolBarTitle() = "Gallery"
 
+    // Click Toolbar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> finish()
-            R.id.toolbar_options -> {
-                val intent = Intent(this, GalleryUserActivity::class.java)
-                intent.putExtra(Constants.ID_GALLERY, galleryId)
-                startActivity(intent)
-            }
+            R.id.toolbar_options -> startActivityDetailPicture()
         }
         return super.onOptionsItemSelected(item)
     }
 
+    // Start activity
+    private fun startActivityDetailPicture() {
+        val intent = Intent(this, GalleryUserActivity::class.java)
+        intent.putExtra(Constants.ID_GALLERY, galleryId)
+        startActivity(intent)
+    }
+
+    // upload image & get url
     private fun uploadPhotoInFirebase(uri: Uri) {
-        val uuid = UUID.randomUUID().toString() // GENERATE UNIQUE STRING
-        val imageRef = FirebaseStorage.getInstance().getReference(uuid)
-        imageRef.putFile(uri).addOnSuccessListener {
-            imageRef.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
-                // SAVE MESSAGE IN FIRESTORE
-                viewModel?.let { vm ->
-                    vm.getGallery(galleryId).addOnSuccessListener { dd ->
-                        dd.toObject(Gallery::class.java)?.let { g ->
-                            val imagesId = g.imagesId
-                            imagesId.add(pathImageSavedInFirebase.toString())
-                            vm.updateGallery(galleryId, imagesId)
-                            getUrls()
-                        }
+        val uuid = UUID.randomUUID().toString()
+        val storage = FirebaseStorage.getInstance().getReference(uuid)
+        storage.putFile(uri).addOnSuccessListener {
+            storage.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
+                viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
+                    it?.let { gallery ->
+                        val imagesId = gallery.imagesId
+                        imagesId.add(pathImageSavedInFirebase.toString())
+                        viewModel.updateGallery(galleryId, imagesId)
+                        getUrls()
                     }
-                }
+                })
             }
         }
     }
 
-    private fun getCurrentUserFromFirestore() {
-        getCurrentUser()?.let { u ->
-            viewModel?.getUser(u.uid)?.addOnSuccessListener {
-                user = it.toObject(User::class.java)
-            }
-        }
-    }
-
+    // Response
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         handleResponse(requestCode, resultCode, data)
@@ -129,50 +134,47 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         onRequestPermissionsResult(requestCode, grantResults)
     }
 
+    // Launch the selection image Activity
     @NeedsPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showGallery() {
-        // 3 - Launch an "Selection Image" Activity
         val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(i, RC_CHOOSE_PHOTO)
     }
 
-    // 4 - Handle activity response (after user has chosen or not a picture)
+    // Handle activity response (after user has chosen or not a picture)
     private fun handleResponse(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == RC_CHOOSE_PHOTO) {
-            if (resultCode == RESULT_OK) { //SUCCESS
-                data?.let {
-                    it.data?.let { it1 -> uploadPhotoInFirebase(it1) }
-                }
+            if (resultCode == RESULT_OK) {
+                data?.data?.let { dataData -> uploadPhotoInFirebase(dataData) }
                 return
-            } else {
-                Toast.makeText(this, getString(R.string.toast_title_no_image_chosen), Toast.LENGTH_SHORT).show()
-            }
+            } else Toast.makeText(this, getString(R.string.toast_title_no_image_chosen), Toast.LENGTH_SHORT).show()
         }
     }
 
+    // Bottom sheet dialog -> Item selected
+    @SuppressLint("InflateParams")
     private fun itemSelected(url: String) {
-        LayoutInflater.from(this).inflate(R.layout.bsd_delete, null).let {
+        LayoutInflater.from(this).inflate(R.layout.bsd_delete, null).let { view ->
 
-            val bottomSheetDialog = createBSD(it)
+            val bottomSheetDialog = createBSD(view)
 
-            it.bsd_item_selected_leave.setOnClickListener {
-                viewModel?.let { vm ->
-                    vm.getGallery(galleryId).addOnSuccessListener { dd ->
-                        dd.toObject(Gallery::class.java)?.let { g ->
-                            val imagesId = g.imagesId
-                            imagesId.remove(url)
-                            vm.updateGallery(galleryId, imagesId)
-                            Toast.makeText(this, "Image delete !", Toast.LENGTH_SHORT).show()
-                            getUrls()
-                        }
-                    }
-                }
+            view.bsd_item_selected_leave.setOnClickListener { _ ->
                 bottomSheetDialog.dismiss()
+                viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
+                    it?.let { gallery ->
+                        val imagesId = gallery.imagesId
+                        imagesId.remove(url)
+                        viewModel.updateGallery(galleryId, imagesId)
+                        Toast.makeText(this, "Image delete !", Toast.LENGTH_SHORT).show()
+                        getUrls()
+                    }
+                })
             }
         }
 
     }
 
+    // Popup for permission
     @OnShowRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE)
     fun showRationaleForPermission(request: PermissionRequest) {
         AlertDialog.Builder(this)
@@ -193,6 +195,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         Toast.makeText(this, getString(R.string.missing_permission), Toast.LENGTH_SHORT).show()
     }
 
+    // Click image item
     override fun onClick(o: String) {
         Intent(this, GalleryDetailActivity::class.java).let {
             it.putExtra(Constants.URL_IMAGE, o)
@@ -200,6 +203,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         }
     }
 
+    // Long click image item
     override fun onLongClick(o: String) {
         itemSelected(o)
     }

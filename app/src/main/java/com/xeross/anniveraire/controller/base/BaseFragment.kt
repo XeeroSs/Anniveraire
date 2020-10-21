@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.xeross.anniveraire.controller.base
 
 import android.os.Bundle
@@ -15,9 +17,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.MainActivity
-import com.xeross.anniveraire.controller.discussion.DiscussionsFragment
-import com.xeross.anniveraire.controller.event.BirthdayFragment
-import com.xeross.anniveraire.controller.gallery.GalleriesFragment
 import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ToolBarListener
 
@@ -26,7 +25,6 @@ abstract class BaseFragment : Fragment(), ToolBarListener {
     lateinit var main: MainActivity
 
     abstract fun getFragmentId(): Int
-
     abstract fun setFragment(): BaseFragment
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -38,25 +36,14 @@ abstract class BaseFragment : Fragment(), ToolBarListener {
         return root
     }
 
-    private fun getGalleryFragment() = getFragment<GalleriesFragment>()
-    fun getDiscussionFragment() = getFragment<DiscussionsFragment>()
-    fun getBirthdayFragment() = getFragment<BirthdayFragment>()
-
-    private inline fun <reified T : BaseFragment> getFragment() = (setFragment() as? T) ?: run {
-        main.sendErrorMessage()
-        null
-    }
-
     protected fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
 
-
     protected fun sendMissingInformationMessage() {
-        Toast.makeText(activity, getString(R.string.missing_information),
-                Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(activity, getString(R.string.missing_information), Toast.LENGTH_SHORT).show()
     }
 
     // ViewModel for Fragment
+    @Suppress("DEPRECATION")
     protected inline fun <reified VM : ViewModel> configureViewModel(): VM? {
         return ViewModelProviders.of(this, context?.let { ViewModelFactory(it) }).get(VM::class.java)
     }
