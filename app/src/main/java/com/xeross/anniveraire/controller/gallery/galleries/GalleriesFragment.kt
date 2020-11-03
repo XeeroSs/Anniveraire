@@ -1,14 +1,14 @@
-package com.xeross.anniveraire.controller.gallery
+package com.xeross.anniveraire.controller.gallery.galleries
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleriesAdapter
 import com.xeross.anniveraire.controller.base.BaseFragment
+import com.xeross.anniveraire.controller.gallery.GalleryActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.utils.Constants
@@ -20,9 +20,9 @@ import kotlinx.android.synthetic.main.fragment_galleries.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
+class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContract.View {
 
-    private var viewModel: GalleryViewModel? = null
+    private var presenter: GalleriesPresenter? = null
     private var adapter: GalleriesAdapter? = null
     private val galleries = ArrayList<Gallery>()
     private val galleriesFull = ArrayList<Gallery>()
@@ -40,24 +40,14 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
                     return@setOnClickListener
                 }
 
-                viewModel?.let { vm ->
-                    alertDialog?.dismiss()
-                    if (galleryId == null) {
-                        val gallery = Gallery(name = view.bsd_discussion_edittext.text.toString(), ownerId = userId, activityDate = Date())
-                        vm.getUser(userId).observe(this, androidx.lifecycle.Observer {
-                            it?.let { user ->
-                                vm.createGallery(gallery, userId, user.galleriesId)
-                                Toast.makeText(context, "Gallery create !", Toast.LENGTH_SHORT).show()
-                                updateRecyclerView()
-                                getGalleriesFromUser()
-                            }
-                        })
-                        return@setOnClickListener
-                    }
-                    vm.updateGalleryName(view.bsd_discussion_edittext.text.toString(), galleryId)
-                    Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
-                    updateRecyclerView()
-                    getGalleriesFromUser()
+                alertDialog?.dismiss()
+                if (galleryId == null) {
+                    val gallery = Gallery(name = view.bsd_discussion_edittext.text.toString(), ownerId = userId, activityDate = Date())
+                    presenter?.addGallery(gallery, userId)
+                    return@setOnClickListener
+                }
+                presenter?.let { p ->
+                    presenter?.updateGalleryName(galleryId, view.bsd_discussion_edittext.text.toString())
                 }
             }
         }
@@ -68,7 +58,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = configureViewModel()
+        presenter = context?.let { GalleriesPresenter(it, this) }
         initializeRecyclerView()
         userId = getCurrentUser()?.uid ?: return
     }
@@ -108,21 +98,11 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
 
     // Get all galleries from user in firebase
     private fun getGalleriesFromUser() {
-        viewModel?.getGalleriesFromUser(userId)?.observe(this, androidx.lifecycle.Observer {
-            it?.let { list ->
-               updateRecyclerView()
-                galleries.addAll(list)
-                galleriesFull.addAll(list)
-                galleries.sortList()
-                galleriesFull.sortList()
-                adapter?.notifyDataSetChanged()
-            }
-        })
+        presenter?.getGalleries(userId)
     }
 
     override fun onStart() {
         super.onStart()
-        updateRecyclerView()
         getGalleriesFromUser()
     }
 
@@ -187,9 +167,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
             it.bsd_confirm_yes.setOnClickListener {
                 // delete
                 bottomSheetDialog?.dismiss()
-                viewModel?.deleteGallery(gallery.id)
-                updateRecyclerView()
-                getGalleriesFromUser()
+                    presenter?.deleteGallery(gallery.id, userId)
             }
             it.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog?.dismiss()
@@ -208,21 +186,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
             view.bsd_confirm_yes.setOnClickListener { _ ->
 
                 bottomSheetDialog?.dismiss()
-                viewModel?.let { v ->
-                    v.getGallery(gallery.id).observe(this, androidx.lifecycle.Observer {
-                        it?.let { g ->
-                            v.getUser(userId).observe(this, androidx.lifecycle.Observer { liveData ->
-                                liveData?.let { user ->
-                                    val galleryIds = user.galleriesId
-                                    v.removeGalleryFromUser(g, userId, galleryIds)
-                                    updateRecyclerView()
-                                    getGalleriesFromUser()
-                                }
-                            })
-                        }
-                    })
-                    return@setOnClickListener
-                }
+                    presenter?.leaveGallery(gallery.id, userId)
             }
             view.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog?.dismiss()
@@ -237,10 +201,22 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery> {
         reverse()
     }
 
+    override fun getGalleries() {
+        presenter?.getGalleries(userId)
+    }
+
     // Update recyclerView
-    private fun updateRecyclerView() {
+    override fun removeGalleries() {
         galleries.clear()
         galleriesFull.clear()
+        adapter?.notifyDataSetChanged()
+    }
+
+    override fun getGalleries(tObjects: ArrayList<Gallery>) {
+        galleries.addAll(tObjects)
+        galleriesFull.addAll(tObjects)
+        galleries.sortList()
+        galleriesFull.sortList()
         adapter?.notifyDataSetChanged()
     }
 }

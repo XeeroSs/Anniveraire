@@ -8,8 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,7 +15,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.MainActivity
-import com.xeross.anniveraire.injection.ViewModelFactory
 import com.xeross.anniveraire.listener.ToolBarListener
 
 abstract class BaseFragment : Fragment(), ToolBarListener {
@@ -41,13 +38,6 @@ abstract class BaseFragment : Fragment(), ToolBarListener {
     protected fun sendMissingInformationMessage() {
         Toast.makeText(activity, getString(R.string.missing_information), Toast.LENGTH_SHORT).show()
     }
-
-    // ViewModel for Fragment
-    @Suppress("DEPRECATION")
-    protected inline fun <reified VM : ViewModel> configureViewModel(): VM? {
-        return ViewModelProviders.of(this, context?.let { ViewModelFactory(it) }).get(VM::class.java)
-    }
-
 
     protected fun RecyclerView.setRecyclerViewAdapter(adapter: RecyclerView.Adapter<*>, isCustom: Boolean = false) {
         setHasFixedSize(true)

@@ -4,16 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
+import com.xeross.anniveraire.listener.RequestContract
 import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
-import java.util.concurrent.Executor
+import com.xeross.anniveraire.utils.Constants.GALLERY_COLLECTION
+import com.xeross.anniveraire.utils.Constants.USERS_COLLECTION
 
-class GalleryRequestViewModel : ViewModel() {
-
-    companion object {
-        const val GALLERY_COLLECTION = "galleries"
-        const val USERS_COLLECTION = "users"
-    }
+class GalleryRequestPresenter(private val contract: RequestContract.View<Gallery>) :
+        ViewModel(),
+        RequestContract.Presenter<Gallery> {
 
     private val databaseInstanceGallery =
             FirebaseFirestore.getInstance().collection(GALLERY_COLLECTION)
@@ -76,5 +75,58 @@ class GalleryRequestViewModel : ViewModel() {
     fun removeGalleryRequest(gallery: Gallery, userId: String, galleriesRequestId: ArrayList<String>?) {
         galleriesRequestId?.remove(gallery.id)
         galleriesRequestId?.let { updateGalleryRequestsFromUser(userId, it) }
+    }
+
+    override fun removeObjectRequest(tObject: Gallery, userId: String) {
+        contract.setList()
+        getDocumentUser(userId).addOnCompleteListener { t ->
+            t.result?.toObject(User::class.java)?.let { user ->
+                removeRequest(user.galleriesRequestId, tObject, userId)
+            }
+        }
+    }
+
+    private fun removeRequest(rGallery: ArrayList<String>, tObject: Gallery, userId: String) {
+        rGallery.remove(tObject.id)
+        updateGalleryRequestsFromUser(userId, rGallery)
+        contract.getRequests()
+    }
+
+    override fun getObjectsFromUser(userId: String) {
+        contract.setList()
+        val galleries = ArrayList<Gallery>()
+        getDocumentUser(userId).addOnCompleteListener { taskUser ->
+            taskUser.result?.toObject(User::class.java)?.let { user ->
+                user.galleriesRequestId.forEach { gId ->
+                    getDocumentGallery(gId).addOnCompleteListener { taskGallery ->
+                        taskGallery.result?.toObject(Gallery::class.java)?.let { gallery ->
+                            if (!galleries.contains(gallery)) {
+                                galleries.add(gallery)
+                                contract.getObjectsFromUser(galleries)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    override fun joinObject(tObject: Gallery, userId: String) {
+        contract.setList()
+        getDocumentUser(userId).addOnCompleteListener { t ->
+            t.result?.toObject(User::class.java)?.let { user ->
+                user.galleriesId.let { galleryIds ->
+                    val userIds = tObject.usersId
+                    if (userIds.contains(userId)) return@addOnCompleteListener
+                    val galleryId = tObject.id
+                    if (galleryIds.contains(galleryId)) return@addOnCompleteListener
+                    userIds.add(userId)
+                    galleryIds.add(galleryId)
+                    updateGalleriesIdFromUser(userId, galleryIds)
+                    updateUsersIdFromGallery(galleryId, userIds)
+                    removeRequest(user.galleriesRequestId, tObject, userId)
+                }
+            }
+        }
     }
 }

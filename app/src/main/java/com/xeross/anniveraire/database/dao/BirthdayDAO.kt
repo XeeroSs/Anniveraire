@@ -1,6 +1,5 @@
 package com.xeross.anniveraire.database.dao
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.xeross.anniveraire.model.Birthday
 import com.xeross.anniveraire.model.Birthday.Companion.TABLE_NAME
@@ -18,8 +17,8 @@ interface BirthdayDAO {
     fun deleteBirthday(id: Int)
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun getBirthdays(): LiveData<List<Birthday>>
+    fun getBirthdays(): List<Birthday>
 
-    @Query("SELECT * FROM $TABLE_NAME WHERE id = :id")
-    fun getBirthday(id: Int): LiveData<Birthday>
+    /* @Query("SELECT * FROM $TABLE_NAME WHERE id = :id")
+     fun getBirthday(id: Int): Birthday*/
 }

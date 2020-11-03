@@ -29,7 +29,7 @@ import permissions.dispatcher.*
 import java.util.*
 
 @RuntimePermissions
-class MessageActivity : BaseActivity() {
+class MessageActivity : BaseActivity(), MessageContract.View {
 
     // Non null
     private lateinit var userId: String
@@ -41,7 +41,7 @@ class MessageActivity : BaseActivity() {
     private lateinit var discussionId: String
 
     // Non null
-    private lateinit var viewModel: MessageViewModel
+    private lateinit var presenter: MessagePresenter
     private var uriImageSelected: Uri? = null
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -55,18 +55,19 @@ class MessageActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         userId = getCurrentUser()?.uid ?: return finish()
-        viewModel = configureViewModel() ?: return finish()
-        viewModel.getUser(userId).observe(this, androidx.lifecycle.Observer {
-            it?.let { user ->
-                this.user = user
-            } ?: finish()
-            intent.getStringExtra(ID_DISCUSSION)?.let { s ->
-                discussionId = s
-                this.initializeRecyclerView(s)
-                this.onClickSendMessage()
-                this.onClickSendImage()
-            } ?: finish()
-        })
+        presenter = MessagePresenter(this).also {
+            it.getUser(userId)
+        }
+    }
+
+    override fun getUser(user: User) {
+        this.user = user
+        intent.getStringExtra(ID_DISCUSSION)?.let { s ->
+            discussionId = s
+            presenter.getMessages(s)
+            this.onClickSendMessage()
+            this.onClickSendImage()
+        } ?: finish()
     }
 
     // Click Toolbar
@@ -93,7 +94,7 @@ class MessageActivity : BaseActivity() {
             activity_message_chat_message_edit_text.takeIf { !TextUtils.isEmpty(activity_message_chat_message_edit_text.text) }?.let {
                 if (activity_message_chat_image_chosen_preview.drawable == null) {
                     // SEND A TEXT MESSAGE
-                    viewModel.createMessageForChat(it.text.toString(), discussionId, user)
+                    presenter.createMessage(it.text.toString(), discussionId, user)
                     it.setText("")
                 } else {
                     // SEND A IMAGE + TEXT IMAGE
@@ -113,7 +114,7 @@ class MessageActivity : BaseActivity() {
             imageRef.putFile(uri).addOnSuccessListener {
                 imageRef.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
                     // SAVE MESSAGE IN FIRESTORE
-                    viewModel.createMessageForChat(pathImageSavedInFirebase.toString(), message,
+                    presenter.createMessageWithImage(pathImageSavedInFirebase.toString(), message,
                             discussionId, user)
                 }
             }
@@ -138,10 +139,9 @@ class MessageActivity : BaseActivity() {
     }
 
     // Initialize recyclerView
-    private fun initializeRecyclerView(discussionId: String) {
+    override fun getMessages(query: Query) {
         activity_message_chat_recycler_view.run {
-            adapter = MessageAdapter(generateOptionsForAdapter(
-                    viewModel.getAllMessageForChat(discussionId)),
+            adapter = MessageAdapter(generateOptionsForAdapter(query),
                     Glide.with(this), userId).also {
                 it.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                     override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {

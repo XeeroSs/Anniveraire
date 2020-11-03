@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
@@ -21,9 +20,9 @@ import kotlinx.android.synthetic.main.fragment_discussions.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
+class DiscussionsFragment : BaseFragment(), ClickListener<Discussion>,DiscussionsContract.View {
 
-    private var viewModel: DiscussionViewModel? = null
+    private var presenter: DiscussionsPresenter? = null
     private var adapter: DiscussionAdapter? = null
     private val discussions = ArrayList<Discussion>()
     private val discussionsFull = ArrayList<Discussion>()
@@ -41,25 +40,13 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
                     return@setOnClickListener
                 }
 
-                viewModel?.let { vm ->
-                    alertDialog?.dismiss()
-                    if (discussionId == null) {
-                        val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString(), ownerId = userId, activityDate = Date())
-                        vm.getUser(userId).observe(this, androidx.lifecycle.Observer {
-                            it?.let { user ->
-                                vm.createDiscussion(discussion, userId, user.discussionsId)
-                                Toast.makeText(context, "Discussion create !", Toast.LENGTH_SHORT).show()
-                                updateRecyclerView()
-                                getDiscussionsFromUser()
-                            }
-                        })
-                        return@setOnClickListener
-                    }
-                    vm.updateDiscussionName(view.bsd_discussion_edittext.text.toString(), discussionId)
-                    Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
-                    updateRecyclerView()
-                    getDiscussionsFromUser()
+                alertDialog?.dismiss()
+                if (discussionId == null) {
+                    val discussion = Discussion(name = view.bsd_discussion_edittext.text.toString(), ownerId = userId, activityDate = Date())
+                    presenter?.addDiscussion(discussion, userId)
+                    return@setOnClickListener
                 }
+                presenter?.updateDiscussionName(discussionId, view.bsd_discussion_edittext.text.toString())
             }
         }
     }
@@ -69,7 +56,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = configureViewModel()
+        presenter = context?.let { DiscussionsPresenter(it,this) }
         initializeRecyclerView()
         userId = getCurrentUser()?.uid ?: return
     }
@@ -77,6 +64,10 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
     // search discussion
     override fun onSearch(searchView: SearchView) {
         searchEvent(searchView)
+    }
+
+    override fun getDiscussions() {
+        presenter?.getDiscussions(userId)
     }
 
     // search discussion
@@ -109,16 +100,20 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
 
     // Get all discussions from user in firebase
     private fun getDiscussionsFromUser() {
-        viewModel?.getDiscussionsFromUser(userId)?.observe(this, androidx.lifecycle.Observer {
-            it?.let { list ->
-                updateRecyclerView()
-                discussions.addAll(list)
-                discussionsFull.addAll(list)
-                discussions.sortList()
-                discussionsFull.sortList()
-                adapter?.notifyDataSetChanged()
-            }
-        })
+        presenter?.getDiscussions(userId)
+    }
+
+    override fun removeDiscussions() {
+        discussions.clear()
+        discussionsFull.clear()
+        adapter?.notifyDataSetChanged()
+    }
+    override fun getDiscussions(tObjects: ArrayList<Discussion>) {
+        discussions.addAll(tObjects)
+        discussionsFull.addAll(tObjects)
+        discussions.sortList()
+        discussionsFull.sortList()
+        adapter?.notifyDataSetChanged()
     }
 
     // Sort by date
@@ -129,7 +124,6 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
 
     override fun onStart() {
         super.onStart()
-        updateRecyclerView()
         getDiscussionsFromUser()
     }
 
@@ -194,8 +188,7 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
             it.bsd_confirm_yes.setOnClickListener {
                 // delete
                 bottomSheetDialog?.dismiss()
-                viewModel?.deleteDiscussion(discussion.id)
-                updateRecyclerView()
+                presenter?.deleteDiscussion(discussion.id, userId)
                 getDiscussionsFromUser()
             }
             it.bsd_confirm_no.setOnClickListener {
@@ -215,34 +208,13 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion> {
             view.bsd_confirm_yes.setOnClickListener { _ ->
                 // delete
                 bottomSheetDialog?.dismiss()
-                viewModel?.let { v ->
-                    v.getDiscussion(discussion.id).observe(this, androidx.lifecycle.Observer {
-                        it?.let { d ->
-                            v.getUser(userId).observe(this, androidx.lifecycle.Observer { liveData ->
-                                liveData?.let { user ->
-                                    val discussionIds = user.discussionsId
-                                    v.removeDiscussionFromUser(d, userId, discussionIds)
-                                    updateRecyclerView()
-                                    getDiscussionsFromUser()
-                                }
-                            })
-                        }
-                    })
-                    return@setOnClickListener
-                }
+                presenter?.leaveDiscussion(discussion.id, userId)
             }
             view.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog?.dismiss()
             }
         }
 
-    }
-
-    // Update recyclerView
-    private fun updateRecyclerView() {
-        discussions.clear()
-        discussionsFull.clear()
-        adapter?.notifyDataSetChanged()
     }
 
 }

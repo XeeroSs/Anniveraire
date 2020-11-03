@@ -21,7 +21,7 @@ import com.xeross.anniveraire.controller.base.BaseFragment
 import com.xeross.anniveraire.controller.discussion.DiscussionsFragment
 import com.xeross.anniveraire.controller.discussion.request.DiscussionRequestActivity
 import com.xeross.anniveraire.controller.event.BirthdayFragment
-import com.xeross.anniveraire.controller.gallery.GalleriesFragment
+import com.xeross.anniveraire.controller.gallery.galleries.GalleriesFragment
 import com.xeross.anniveraire.controller.gallery.request.GalleryRequestActivity
 import com.xeross.anniveraire.controller.login.LoginActivity
 import kotlinx.android.synthetic.main.activity_main.*

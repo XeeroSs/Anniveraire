@@ -51,7 +51,8 @@ class RequestAdapter<T>(private val context: Context, private val tObjects: Arra
         when (tObject) {
             is Gallery -> {
                 holder.nameDiscussion.text = tObject.name
-                Glide.with(context).load(context.resources.getDrawable(R.drawable.image_circle))
+                Glide.with(context)
+                        .load(context.resources.getDrawable(R.drawable.image_circle))
                         .into(holder.imageDiscussion)
             }
             is Discussion -> {

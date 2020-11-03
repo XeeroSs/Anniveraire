@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.Observer
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.BirthdayAdapter
 import com.xeross.anniveraire.controller.base.BaseFragment
@@ -29,12 +28,12 @@ import kotlin.Comparator
 import kotlin.collections.ArrayList
 
 
-class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
+class BirthdayFragment : BaseFragment(), ClickListener<Birthday>, BirthdayContract.View {
 
     private var adapterEvent: BirthdayAdapter? = null
     private val birthdays = ArrayList<Birthday>()
     private val birthdaysFull = ArrayList<Birthday>()
-    private var viewModel: BirthdayViewModel? = null
+    private var presenter: BirthdayPresenter? = null
     private lateinit var calendar: Calendar
     private lateinit var dateToday: Date
     private lateinit var datePickerDialog: DatePickerDialog.OnDateSetListener
@@ -56,22 +55,13 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
                 fragment_event_list.setRecyclerViewAdapter(it)
             }
         }
-        viewModel = configureViewModel()
-        viewModel?.let { getBirthdaysFromRoom(it) }
+        presenter = context?.let { BirthdayPresenter(it, this) }
+        getBirthdaysFromRoom()
     }
 
     // get all events from room
-    private fun getBirthdaysFromRoom(it: BirthdayViewModel) {
-        it.getBirthdays()?.observe(viewLifecycleOwner, Observer { birthdayList ->
-            birthdayList?.let { list ->
-                birthdaysFull.clear()
-                birthdays.clear()
-                birthdays.addAll(list)
-                birthdays.sortListWith()
-                birthdaysFull.addAll(birthdays)
-                adapterEvent?.notifyDataSetChanged()
-            }
-        })
+    private fun getBirthdaysFromRoom() {
+        presenter?.getBirthdays()
     }
 
     // Sort by date
@@ -89,13 +79,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
     // Long click event item
     override fun onLongClick(o: Birthday) {
-        context?.let {
-            viewModel?.getBirthday(o.id)?.observe(this, Observer { birthday ->
-                birthday?.let { b ->
-                    itemSelected(b)
-                }
-            })
-        }
+        itemSelected(o)
     }
 
     // Click on editText for date
@@ -202,9 +186,9 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
                                 ?: return@setOnClickListener
                         dateBirth = date
                     }
-                    viewModel?.let { vm ->
+                    presenter?.let { vm ->
                         vm.updateBirthday(it)
-                        getBirthdaysFromRoom(vm)
+                        getBirthdaysFromRoom()
                     }
                 } ?: run {
                     val date = UtilsDate.getStringInDate(view.bsd_birthday_edittext_date.text!!.toString())
@@ -212,9 +196,9 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
                     val event = Birthday(firstName = view.bsd_birthday_edittext_name.text!!.toString(),
                             lastName = view.bsd_birthday_edittext_lastname.text!!.toString(),
                             dateBirth = date)
-                    viewModel?.let { vm ->
-                        vm.createBirthday(event)
-                        getBirthdaysFromRoom(vm)
+                    presenter?.let { vm ->
+                        vm.addBirthday(event)
+                        getBirthdaysFromRoom()
                     }
                 }
             }
@@ -252,9 +236,9 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
                                 ?: return@setOnClickListener
                         dateBirth = date
                     }
-                    viewModel?.let { vm ->
+                    presenter?.let { vm ->
                         vm.updateBirthday(it)
-                        getBirthdaysFromRoom(vm)
+                        getBirthdaysFromRoom()
                     }
                 } ?: run {
                     val event = if (!isOther) {
@@ -270,9 +254,9 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
                                 state = BirthdayState.OTHER,
                                 dateBirth = date)
                     }
-                    viewModel?.let { vm ->
-                        vm.createBirthday(event)
-                        getBirthdaysFromRoom(vm)
+                    presenter?.let { vm ->
+                        vm.addBirthday(event)
+                        getBirthdaysFromRoom()
                     }
                 }
             }
@@ -311,9 +295,9 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
 
             v.bsd_confirm_yes.setOnClickListener {
                 bottomSheetDialog.dismiss()
-                viewModel?.let { vm ->
+                presenter?.let { vm ->
                     vm.deleteBirthday(birthday.id)
-                    getBirthdaysFromRoom(vm)
+                    getBirthdaysFromRoom()
                 }
             }
             v.bsd_confirm_no.setOnClickListener {
@@ -322,5 +306,18 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday> {
             }
         }
 
+    }
+
+    override fun removeBirthdays() {
+        adapterEvent?.notifyDataSetChanged()
+    }
+
+    override fun getBirthdays(tObjects: List<Birthday>) {
+        birthdaysFull.clear()
+        birthdays.clear()
+        birthdays.addAll(tObjects)
+        birthdays.sortListWith()
+        birthdaysFull.addAll(birthdays)
+        adapterEvent?.notifyDataSetChanged()
     }
 }

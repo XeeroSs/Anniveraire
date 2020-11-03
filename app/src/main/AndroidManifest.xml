@@ -15,7 +15,7 @@
         android:theme="@style/Anniversaire">
         <activity android:name=".controller.gallery.request.GalleryRequestActivity"></activity>
         <activity android:name=".controller.gallery.user.GalleryUserActivity" />
-        <activity android:name=".controller.gallery.GalleryDetailActivity" />
+        <activity android:name=".controller.gallery.details.GalleryDetailActivity" />
         <activity android:name=".controller.gallery.GalleryActivity" />
         <activity android:name=".controller.discussion.user.DiscussionUserActivity" />
         <activity android:name=".controller.discussion.request.DiscussionRequestActivity" />

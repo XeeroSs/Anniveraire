@@ -15,12 +15,16 @@ import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.coordinator.*
 
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity(), LoginContract.View {
+
+    // Non null
+    private lateinit var presenter: LoginPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         supportActionBar?.title = "Login"
+        presenter = LoginPresenter(this)
         login_activity_button_login_google.setOnClickListener {
             startSignInActivity(AuthUI.IdpConfig.GoogleBuilder().build())
         }
@@ -40,24 +44,6 @@ class LoginActivity : AppCompatActivity() {
     // Get current user from FirebaseAuth
     private fun getCurrentUser() = FirebaseAuth.getInstance().currentUser
 
-    private fun createUserInFirebase() {
-        getCurrentUser()?.let {
-            LoginHelper.getUser(it.uid).addOnSuccessListener { ds ->
-                val user = ds.toObject(User::class.java)
-                val email = it.email
-                val username = user?.userName ?: it.displayName
-                val urlPicture = if (user == null) if (it.photoUrl != null) it.photoUrl.toString() else null else user.urlImage
-                val uid = it.uid
-                val discussionId = user?.discussionsId ?: ArrayList()
-                val galleriesId = user?.galleriesId ?: ArrayList()
-                val discussionRequestId = user?.discussionsRequestId ?: ArrayList()
-                val galleriesRequestId = user?.galleriesRequestId ?: ArrayList()
-                LoginHelper.createUser(uid, email, username, urlPicture, discussionId = discussionId, discussionRequestId = discussionRequestId, galleriesId = galleriesId, galleriesRequestId = galleriesRequestId)
-                finish()
-            }
-        }
-    }
-
     // Get login response
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -69,7 +55,7 @@ class LoginActivity : AppCompatActivity() {
         val response = IdpResponse.fromResultIntent(data)
         if (requestCode == RC_SIGN_IN) {
             if (resultCode == RESULT_OK) {
-                this.createUserInFirebase()
+                getCurrentUser()?.uid?.let { presenter.getUser(it) }
             } else {
                 if (response != null) {
                     this.showSnackBar(getString(
@@ -84,5 +70,20 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showSnackBar(message: String?) {
         Snackbar.make(coordinator, message!!, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun getUser(user: User?) {
+        getCurrentUser()?.let {
+            val email = it.email
+            val username = user?.userName ?: it.displayName
+            val urlPicture = if (user == null) if (it.photoUrl != null) it.photoUrl.toString() else null else user.urlImage
+            val uid = it.uid
+            val discussionId = user?.discussionsId ?: ArrayList()
+            val galleriesId = user?.galleriesId ?: ArrayList()
+            val discussionRequestId = user?.discussionsRequestId ?: ArrayList()
+            val galleriesRequestId = user?.galleriesRequestId ?: ArrayList()
+            presenter.createUser(uid, email, username, urlPicture, discussionId = discussionId, discussionRequestId = discussionRequestId, galleriesId = galleriesId, galleriesRequestId = galleriesRequestId)
+            finish()
+        }
     }
 }

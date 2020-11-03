@@ -15,7 +15,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.controller.login.LoginActivity
-import com.xeross.anniveraire.injection.ViewModelFactory
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -45,12 +44,6 @@ abstract class BaseActivity : AppCompatActivity() {
             android.R.id.home -> finish()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    // ViewModel for Fragment
-    @Suppress("DEPRECATION")
-    protected inline fun <reified VM : ViewModel> configureViewModel(): VM? {
-        return ViewModelProviders.of(this, ViewModelFactory(this)).get(VM::class.java)
     }
 
     protected abstract fun getLayoutId(): Int

@@ -11,10 +11,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleryAdapter
 import com.xeross.anniveraire.controller.base.BaseActivity
+import com.xeross.anniveraire.controller.gallery.details.GalleryDetailActivity
 import com.xeross.anniveraire.controller.gallery.user.GalleryUserActivity
 import com.xeross.anniveraire.listener.ClickListener
 import com.xeross.anniveraire.utils.Constants
@@ -22,11 +22,9 @@ import com.xeross.anniveraire.utils.Constants.RC_CHOOSE_PHOTO
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.android.synthetic.main.bsd_item_leave.view.*
 import permissions.dispatcher.*
-import java.util.*
-import kotlin.collections.ArrayList
 
 @RuntimePermissions
-class GalleryActivity : BaseActivity(), ClickListener<String> {
+class GalleryActivity : BaseActivity(), ClickListener<String>, GalleryContract.View {
 
     private val urls = ArrayList<String>()
     private var adapter: GalleryAdapter? = null
@@ -38,7 +36,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
     private lateinit var galleryId: String
 
     // Non null
-    private lateinit var viewModel: GalleryViewModel
+    private lateinit var presenter: GalleryPresenter
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu_group, menu)
@@ -50,7 +48,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
             galleryId = s
         } ?: finish()
-        viewModel = configureViewModel() ?: return finish()
+        presenter = GalleryPresenter(this, this)
         userId = getCurrentUser()?.uid ?: return finish()
         onClick()
         initializeRecyclerView()
@@ -75,15 +73,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
 
     // Get image's urls of gallery
     private fun getUrls() {
-        urls.clear()
-        viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
-            it?.let { gallery ->
-                gallery.imagesId.forEach { url ->
-                    urls.add(url)
-                    adapter?.notifyDataSetChanged()
-                }
-            }
-        })
+        presenter.getImageUrls(galleryId)
     }
 
     override fun getLayoutId() = R.layout.activity_gallery
@@ -107,20 +97,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
 
     // upload image & get url
     private fun uploadPhotoInFirebase(uri: Uri) {
-        val uuid = UUID.randomUUID().toString()
-        val storage = FirebaseStorage.getInstance().getReference(uuid)
-        storage.putFile(uri).addOnSuccessListener {
-            storage.downloadUrl.addOnSuccessListener { pathImageSavedInFirebase ->
-                viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
-                    it?.let { gallery ->
-                        val imagesId = gallery.imagesId
-                        imagesId.add(pathImageSavedInFirebase.toString())
-                        viewModel.updateGallery(galleryId, imagesId)
-                        getUrls()
-                    }
-                })
-            }
-        }
+        presenter.addImage(galleryId, uri)
     }
 
     // Response
@@ -151,6 +128,10 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
         }
     }
 
+    override fun getImagesUrls() {
+        presenter.getImageUrls(galleryId)
+    }
+
     // Bottom sheet dialog -> Item selected
     @SuppressLint("InflateParams")
     private fun itemSelected(url: String) {
@@ -160,15 +141,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
 
             view.bsd_item_selected_leave.setOnClickListener { _ ->
                 bottomSheetDialog.dismiss()
-                viewModel.getGallery(galleryId).observe(this, androidx.lifecycle.Observer {
-                    it?.let { gallery ->
-                        val imagesId = gallery.imagesId
-                        imagesId.remove(url)
-                        viewModel.updateGallery(galleryId, imagesId)
-                        Toast.makeText(this, "Image delete !", Toast.LENGTH_SHORT).show()
-                        getUrls()
-                    }
-                })
+                presenter.deleteImage(galleryId, url)
             }
         }
 
@@ -206,5 +179,15 @@ class GalleryActivity : BaseActivity(), ClickListener<String> {
     // Long click image item
     override fun onLongClick(o: String) {
         itemSelected(o)
+    }
+
+    override fun removeImages() {
+        urls.clear()
+        adapter?.notifyDataSetChanged()
+    }
+
+    override fun getImageUrls(tObjects: ArrayList<String>) {
+        urls.addAll(tObjects)
+        adapter?.notifyDataSetChanged()
     }
 }

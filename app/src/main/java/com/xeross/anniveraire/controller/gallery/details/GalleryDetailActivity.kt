@@ -1,4 +1,4 @@
-package com.xeross.anniveraire.controller.gallery
+package com.xeross.anniveraire.controller.gallery.details
 
 import android.os.Bundle
 import com.bumptech.glide.Glide
