@@ -1,6 +1,5 @@
 package com.xeross.anniveraire.controller.discussion.request
 
-import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.listener.RequestContract
 import com.xeross.anniveraire.model.Discussion
@@ -8,8 +7,8 @@ import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.DISCUSSION_COLLECTION
 import com.xeross.anniveraire.utils.Constants.USERS_COLLECTION
 
-class DiscussionRequestPresenter(private val contract: RequestContract.View<Discussion>) : ViewModel(),
-        RequestContract.Presenter<Discussion> {
+class DiscussionRequestPresenter(private val contract: RequestContract.View<Discussion>)
+    : RequestContract.Presenter<Discussion> {
 
     private val databaseInstanceDiscussion =
             FirebaseFirestore.getInstance().collection(DISCUSSION_COLLECTION)

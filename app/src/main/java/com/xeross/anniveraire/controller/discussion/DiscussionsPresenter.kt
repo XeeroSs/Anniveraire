@@ -1,13 +1,13 @@
 package com.xeross.anniveraire.controller.discussion
 
-import android.content.Context
-import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
+import com.xeross.anniveraire.R
 import com.xeross.anniveraire.model.Discussion
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
+import com.xeross.anniveraire.utils.sortDiscussionsByDate
 
-class DiscussionsPresenter(private val context: Context, private val contract: DiscussionsContract.View) : DiscussionsContract.Presenter {
+class DiscussionsPresenter(private val contract: DiscussionsContract.View) : DiscussionsContract.Presenter {
 
     private val databaseUsersInstance =
             FirebaseFirestore.getInstance().collection(Constants.USERS_COLLECTION)
@@ -35,6 +35,7 @@ class DiscussionsPresenter(private val context: Context, private val contract: D
                         taskGallery.result?.toObject(Discussion::class.java)?.let { discussion ->
                             if (!discussions.contains(discussion)) {
                                 discussions.add(discussion)
+                                discussions.sortDiscussionsByDate()
                                 contract.getDiscussions(discussions)
                             }
                         }
@@ -49,7 +50,7 @@ class DiscussionsPresenter(private val context: Context, private val contract: D
         getDocumentUser(userId).addOnCompleteListener { t ->
             t.result?.toObject(User::class.java)?.let { user ->
                 createDiscussion(discussion, userId, user.discussionsId)
-                Toast.makeText(context, "Discussion create !", Toast.LENGTH_SHORT).show()
+                contract.sendToast(R.string.discussion_create)
                 contract.getDiscussions()
             }
         }
@@ -93,7 +94,7 @@ class DiscussionsPresenter(private val context: Context, private val contract: D
     override fun updateDiscussionName(id: String, newName: String) {
         contract.removeDiscussions()
         databaseDiscussionInstance.document(id).update("name", newName)
-        Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
+        contract.sendToast(R.string.name_update)
         contract.getDiscussions()
     }
 }

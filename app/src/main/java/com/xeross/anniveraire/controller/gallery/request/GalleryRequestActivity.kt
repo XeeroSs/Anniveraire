@@ -43,12 +43,6 @@ class GalleryRequestActivity : BaseActivity(), RequestListener<Gallery>, Request
     override fun getLayoutId() = R.layout.activity_gallery_request
     override fun getToolBarTitle() = "Gallery requests"
 
-    // Update recyclerView
-    private fun updateRecyclerView() {
-        galleries.clear()
-        adapter?.notifyDataSetChanged()
-    }
-
     override fun getObjectsFromUser(tObjects: ArrayList<Gallery>) {
         this.galleries.clear()
         this.galleries.addAll(tObjects)

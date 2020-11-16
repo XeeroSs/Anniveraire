@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.GalleriesAdapter
@@ -22,7 +23,7 @@ import kotlin.collections.ArrayList
 
 class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContract.View {
 
-    private var presenter: GalleriesPresenter? = null
+    private lateinit var presenter: GalleriesPresenter
     private var adapter: GalleriesAdapter? = null
     private val galleries = ArrayList<Gallery>()
     private val galleriesFull = ArrayList<Gallery>()
@@ -43,12 +44,10 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
                 alertDialog?.dismiss()
                 if (galleryId == null) {
                     val gallery = Gallery(name = view.bsd_discussion_edittext.text.toString(), ownerId = userId, activityDate = Date())
-                    presenter?.addGallery(gallery, userId)
+                    presenter.addGallery(gallery, userId)
                     return@setOnClickListener
                 }
-                presenter?.let { p ->
-                    presenter?.updateGalleryName(galleryId, view.bsd_discussion_edittext.text.toString())
-                }
+                presenter.updateGalleryName(galleryId, view.bsd_discussion_edittext.text.toString())
             }
         }
     }
@@ -58,7 +57,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        presenter = context?.let { GalleriesPresenter(it, this) }
+        presenter = GalleriesPresenter(this)
         initializeRecyclerView()
         userId = getCurrentUser()?.uid ?: return
     }
@@ -66,6 +65,10 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
     // search gallery
     override fun onSearch(searchView: SearchView) {
         searchEvent(searchView)
+    }
+
+    override fun sendToast(textToast: String) {
+        Toast.makeText(context, textToast, Toast.LENGTH_SHORT).show()
     }
 
     // search gallery
@@ -98,7 +101,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
 
     // Get all galleries from user in firebase
     private fun getGalleriesFromUser() {
-        presenter?.getGalleries(userId)
+        presenter.getGalleries(userId)
     }
 
     override fun onStart() {
@@ -167,7 +170,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
             it.bsd_confirm_yes.setOnClickListener {
                 // delete
                 bottomSheetDialog?.dismiss()
-                    presenter?.deleteGallery(gallery.id, userId)
+                presenter.deleteGallery(gallery.id, userId)
             }
             it.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog?.dismiss()
@@ -186,7 +189,7 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
             view.bsd_confirm_yes.setOnClickListener { _ ->
 
                 bottomSheetDialog?.dismiss()
-                    presenter?.leaveGallery(gallery.id, userId)
+                presenter.leaveGallery(gallery.id, userId)
             }
             view.bsd_confirm_no.setOnClickListener {
                 bottomSheetDialog?.dismiss()
@@ -195,14 +198,8 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
 
     }
 
-    // Sort by date
-    private fun ArrayList<Gallery>.sortList() {
-        sortWith(Comparator { g1, g2 -> g1.activityDate.compareTo(g2.activityDate) })
-        reverse()
-    }
-
     override fun getGalleries() {
-        presenter?.getGalleries(userId)
+        presenter.getGalleries(userId)
     }
 
     // Update recyclerView
@@ -213,10 +210,10 @@ class GalleriesFragment : BaseFragment(), ClickListener<Gallery>, GalleriesContr
     }
 
     override fun getGalleries(tObjects: ArrayList<Gallery>) {
+        galleries.clear()
+        galleriesFull.clear()
         galleries.addAll(tObjects)
         galleriesFull.addAll(tObjects)
-        galleries.sortList()
-        galleriesFull.sortList()
         adapter?.notifyDataSetChanged()
     }
 }

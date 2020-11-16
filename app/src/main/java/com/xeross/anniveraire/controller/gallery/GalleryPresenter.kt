@@ -1,15 +1,13 @@
 package com.xeross.anniveraire.controller.gallery
 
-import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.utils.Constants
 import java.util.*
 
-class GalleryPresenter(private val context: Context, private val contract: GalleryContract.View) : GalleryContract.Presenter {
+class GalleryPresenter(private val contract: GalleryContract.View) : GalleryContract.Presenter {
 
     private val databaseUsersInstance =
             FirebaseFirestore.getInstance().collection(Constants.USERS_COLLECTION)
@@ -24,7 +22,6 @@ class GalleryPresenter(private val context: Context, private val contract: Galle
         getDocumentGallery(id).addOnCompleteListener { t ->
             t.result?.toObject(Gallery::class.java)?.let { g ->
                 contract.getImageUrls(g.imagesId)
-                contract.getImagesUrls()
             }
         }
     }
@@ -41,7 +38,6 @@ class GalleryPresenter(private val context: Context, private val contract: Galle
                         imagesId.add(pathImageSavedInFirebase.toString())
                         updateGallery(id, imagesId)
                         contract.getImagesUrls()
-
                     }
                 }
             }
@@ -55,7 +51,7 @@ class GalleryPresenter(private val context: Context, private val contract: Galle
                 val imagesId = gallery.imagesId
                 imagesId.remove(urlImage)
                 updateGallery(id, imagesId)
-                Toast.makeText(context, "Image delete !", Toast.LENGTH_SHORT).show()
+                contract.sendToast("Image delete !")
                 contract.getImagesUrls()
             }
         }

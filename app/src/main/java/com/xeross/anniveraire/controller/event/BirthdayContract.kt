@@ -7,6 +7,7 @@ interface BirthdayContract {
     interface View {
         fun removeBirthdays()
         fun getBirthdays(tObjects: List<Birthday>)
+        fun getBirthdays()
     }
 
     interface Presenter {

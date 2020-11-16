@@ -28,7 +28,7 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User>, UserContract
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent.getStringExtra(Constants.ID_DISCUSSION)?.let { s ->
-            presenter = DiscussionUserPresenter(this, this)
+            presenter = DiscussionUserPresenter(this)
             discussionId = s
             UserAdapter(usersInDiscussion, this, this).let {
                 adapter = it
@@ -78,6 +78,10 @@ class DiscussionUserActivity : BaseActivity(), ClickListener<User>, UserContract
         getCurrentUser()?.uid?.let {
             presenter?.longClick(discussionId, it, o.id)
         }
+    }
+
+    override fun sendToast(idText: Int) {
+        Toast.makeText(this, getString(idText), Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("InflateParams")

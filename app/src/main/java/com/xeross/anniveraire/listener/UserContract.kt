@@ -10,6 +10,7 @@ interface UserContract {
         fun showPopupAddUser()
         fun getUsersFromObject(tObjects: ArrayList<User>)
         fun getUsers()
+        fun sendToast(idText: Int)
     }
 
     interface Presenter {

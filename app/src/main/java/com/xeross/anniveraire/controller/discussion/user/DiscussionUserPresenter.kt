@@ -1,9 +1,5 @@
 package com.xeross.anniveraire.controller.discussion.user
 
-import android.content.Context
-import android.widget.Toast
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.R
@@ -13,7 +9,7 @@ import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.DISCUSSION_COLLECTION
 import com.xeross.anniveraire.utils.Constants.USERS_COLLECTION
 
-class DiscussionUserPresenter(private val contract: UserContract.View, private val context: Context) :
+class DiscussionUserPresenter(private val contract: UserContract.View) :
         UserContract.Presenter {
 
     private val databaseDiscussionInstance =
@@ -94,19 +90,19 @@ class DiscussionUserPresenter(private val contract: UserContract.View, private v
                 d.toObject(User::class.java)?.let { u ->
                     val discussionsRequestId = u.discussionsRequestId
                     if (discussionsRequestId.contains(id)) {
-                        Toast.makeText(context, context.getString(R.string.requests_already_sent), Toast.LENGTH_SHORT).show()
+                        contract.sendToast(R.string.requests_already_sent)
                         return@addOnSuccessListener
                     }
                     discussionsRequestId.add(id)
                     updateDiscussionsRequestUser(u.id, discussionsRequestId)
-                    Toast.makeText(context, context.getString(R.string.request_sent), Toast.LENGTH_SHORT).show()
+                    contract.sendToast(R.string.request_sent)
                     alertDialog.dismiss()
                     return@addOnSuccessListener
                 }
             }
-            Toast.makeText(context, context.getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.error_email_not_found)
         }.addOnFailureListener {
-            Toast.makeText(context, context.getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.error_email_not_found)
         }
     }
 
@@ -120,7 +116,7 @@ class DiscussionUserPresenter(private val contract: UserContract.View, private v
                     }
                 }
             }
-            Toast.makeText(context, context.getString(R.string.you_cannot_add_anyone), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.you_cannot_add_anyone)
         }
     }
 }

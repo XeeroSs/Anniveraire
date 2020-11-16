@@ -48,7 +48,7 @@ class GalleryActivity : BaseActivity(), ClickListener<String>, GalleryContract.V
         intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
             galleryId = s
         } ?: finish()
-        presenter = GalleryPresenter(this, this)
+        presenter = GalleryPresenter(this)
         userId = getCurrentUser()?.uid ?: return finish()
         onClick()
         initializeRecyclerView()
@@ -130,6 +130,10 @@ class GalleryActivity : BaseActivity(), ClickListener<String>, GalleryContract.V
 
     override fun getImagesUrls() {
         presenter.getImageUrls(galleryId)
+    }
+
+    override fun sendToast(testToast: String) {
+        Toast.makeText(this, testToast, Toast.LENGTH_SHORT).show()
     }
 
     // Bottom sheet dialog -> Item selected

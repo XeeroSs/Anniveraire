@@ -27,7 +27,7 @@ class GalleryUserActivity : BaseActivity(), ClickListener<User>, UserContract.Vi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         intent.getStringExtra(Constants.ID_GALLERY)?.let { s ->
-            presenter = GalleryUserPresenter(this, this)
+            presenter = GalleryUserPresenter(this)
             galleryId = s
             UserAdapter(usersInGallery, this, this).let {
                 adapter = it
@@ -78,6 +78,10 @@ class GalleryUserActivity : BaseActivity(), ClickListener<User>, UserContract.Vi
         getCurrentUser()?.uid?.let {
             presenter?.longClick(galleryId, it, o.id)
         }
+    }
+
+    override fun sendToast(idText: Int) {
+        Toast.makeText(this, getString(idText), Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("InflateParams")

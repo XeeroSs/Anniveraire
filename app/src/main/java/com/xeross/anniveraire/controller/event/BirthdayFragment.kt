@@ -64,6 +64,10 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday>, BirthdayContra
         presenter?.getBirthdays()
     }
 
+    override fun getBirthdays() {
+        presenter?.getBirthdays()
+    }
+
     // Sort by date
     private fun ArrayList<Birthday>.sortListWith() {
         sortWith(Comparator { event1, event2 ->
@@ -186,20 +190,14 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday>, BirthdayContra
                                 ?: return@setOnClickListener
                         dateBirth = date
                     }
-                    presenter?.let { vm ->
-                        vm.updateBirthday(it)
-                        getBirthdaysFromRoom()
-                    }
+                    presenter?.updateBirthday(it)
                 } ?: run {
                     val date = UtilsDate.getStringInDate(view.bsd_birthday_edittext_date.text!!.toString())
                             ?: return@setOnClickListener
                     val event = Birthday(firstName = view.bsd_birthday_edittext_name.text!!.toString(),
                             lastName = view.bsd_birthday_edittext_lastname.text!!.toString(),
                             dateBirth = date)
-                    presenter?.let { vm ->
-                        vm.addBirthday(event)
-                        getBirthdaysFromRoom()
-                    }
+                    presenter?.addBirthday(event)
                 }
             }
         }
@@ -236,10 +234,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday>, BirthdayContra
                                 ?: return@setOnClickListener
                         dateBirth = date
                     }
-                    presenter?.let { vm ->
-                        vm.updateBirthday(it)
-                        getBirthdaysFromRoom()
-                    }
+                    presenter?.updateBirthday(it)
                 } ?: run {
                     val event = if (!isOther) {
                         val date = UtilsDate.getStringInDate(view.bsd_event_other_edittext_date.text!!.toString())
@@ -254,10 +249,7 @@ class BirthdayFragment : BaseFragment(), ClickListener<Birthday>, BirthdayContra
                                 state = BirthdayState.OTHER,
                                 dateBirth = date)
                     }
-                    presenter?.let { vm ->
-                        vm.addBirthday(event)
-                        getBirthdaysFromRoom()
-                    }
+                    presenter?.addBirthday(event)
                 }
             }
         }

@@ -14,8 +14,7 @@ import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.GALLERY_COLLECTION
 import com.xeross.anniveraire.utils.Constants.USERS_COLLECTION
 
-class GalleryUserPresenter(private val contract: UserContract.View,
-                           private val context: Context) :
+class GalleryUserPresenter(private val contract: UserContract.View) :
         UserContract.Presenter {
 
     private val databaseGalleryInstance =
@@ -97,19 +96,19 @@ class GalleryUserPresenter(private val contract: UserContract.View,
                 d.toObject(User::class.java)?.let { u ->
                     val galleriesRequestId = u.galleriesRequestId
                     if (galleriesRequestId.contains(id)) {
-                        Toast.makeText(context, context.getString(R.string.requests_already_sent), Toast.LENGTH_SHORT).show()
+                        contract.sendToast(R.string.requests_already_sent)
                         return@addOnSuccessListener
                     }
                     galleriesRequestId.add(id)
                     updateGalleriesRequestUser(u.id, galleriesRequestId)
-                    Toast.makeText(context, context.getString(R.string.request_sent), Toast.LENGTH_SHORT).show()
+                    contract.sendToast(R.string.request_sent)
                     alertDialog.dismiss()
                     return@addOnSuccessListener
                 }
             }
-            Toast.makeText(context, context.getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.error_email_not_found)
         }.addOnFailureListener {
-            Toast.makeText(context, context.getString(R.string.error_email_not_found), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.error_email_not_found)
         }
     }
 
@@ -123,7 +122,7 @@ class GalleryUserPresenter(private val contract: UserContract.View,
                     }
                 }
             }
-            Toast.makeText(context, context.getString(R.string.you_cannot_add_anyone), Toast.LENGTH_SHORT).show()
+            contract.sendToast(R.string.you_cannot_add_anyone)
         }
     }
 }

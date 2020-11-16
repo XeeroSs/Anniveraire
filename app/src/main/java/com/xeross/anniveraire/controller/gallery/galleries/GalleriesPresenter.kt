@@ -1,15 +1,13 @@
 package com.xeross.anniveraire.controller.gallery.galleries
 
-import android.content.Context
-import android.widget.Toast
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.model.Gallery
 import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants
-import java.util.*
-import kotlin.collections.ArrayList
+import com.xeross.anniveraire.utils.sortGalleriesByDate
 
-class GalleriesPresenter(private val context: Context, private val contract: GalleriesContract.View) : GalleriesContract.Presenter {
+class GalleriesPresenter(private val contract: GalleriesContract.View)
+    : GalleriesContract.Presenter {
 
     private val databaseUsersInstance =
             FirebaseFirestore.getInstance().collection(Constants.USERS_COLLECTION)
@@ -28,7 +26,6 @@ class GalleriesPresenter(private val context: Context, private val contract: Gal
     }
 
     override fun getGalleries(userId: String) {
-        contract.removeGalleries()
         val galleries = ArrayList<Gallery>()
         getDocumentUser(userId).addOnCompleteListener { taskUser ->
             taskUser.result?.toObject(User::class.java)?.let { user ->
@@ -37,6 +34,7 @@ class GalleriesPresenter(private val context: Context, private val contract: Gal
                         taskGallery.result?.toObject(Gallery::class.java)?.let { gallery ->
                             if (!galleries.contains(gallery)) {
                                 galleries.add(gallery)
+                                galleries.sortGalleriesByDate()
                                 contract.getGalleries(galleries)
                             }
                         }
@@ -51,8 +49,8 @@ class GalleriesPresenter(private val context: Context, private val contract: Gal
         getDocumentUser(userId).addOnCompleteListener { t ->
             t.result?.toObject(User::class.java)?.let { user ->
                 createGallery(gallery, userId, user.galleriesId)
-                Toast.makeText(context, "Gallery create !", Toast.LENGTH_SHORT).show()
                 contract.getGalleries()
+                contract.sendToast("Gallery create !")
             }
         }
     }
@@ -95,7 +93,7 @@ class GalleriesPresenter(private val context: Context, private val contract: Gal
     override fun updateGalleryName(id: String, newName: String) {
         contract.removeGalleries()
         databaseGalleryInstance.document(id).update("name", newName)
-        Toast.makeText(context, "Name update !", Toast.LENGTH_SHORT).show()
+        contract.sendToast("Name update !")
         contract.getGalleries()
     }
 }

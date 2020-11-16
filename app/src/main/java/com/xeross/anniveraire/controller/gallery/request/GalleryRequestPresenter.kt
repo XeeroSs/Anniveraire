@@ -2,7 +2,6 @@ package com.xeross.anniveraire.controller.gallery.request
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import com.xeross.anniveraire.listener.RequestContract
 import com.xeross.anniveraire.model.Gallery
@@ -10,9 +9,7 @@ import com.xeross.anniveraire.model.User
 import com.xeross.anniveraire.utils.Constants.GALLERY_COLLECTION
 import com.xeross.anniveraire.utils.Constants.USERS_COLLECTION
 
-class GalleryRequestPresenter(private val contract: RequestContract.View<Gallery>) :
-        ViewModel(),
-        RequestContract.Presenter<Gallery> {
+class GalleryRequestPresenter(private val contract: RequestContract.View<Gallery>) : RequestContract.Presenter<Gallery> {
 
     private val databaseInstanceGallery =
             FirebaseFirestore.getInstance().collection(GALLERY_COLLECTION)
@@ -40,16 +37,6 @@ class GalleryRequestPresenter(private val contract: RequestContract.View<Gallery
         return mutableLiveData
     }
 
-    fun getUser(userId: String): LiveData<User> {
-        val mutableLiveData = MutableLiveData<User>()
-        getDocumentUser(userId).addOnCompleteListener { t ->
-            t.result?.toObject(User::class.java)?.let { user ->
-                mutableLiveData.postValue(user)
-            }
-        }
-        return mutableLiveData
-    }
-
     private fun updateUsersIdFromGallery(id: String, usersId: ArrayList<String>) {
         databaseInstanceGallery.document(id).update("usersId", usersId)
     }
@@ -60,21 +47,6 @@ class GalleryRequestPresenter(private val contract: RequestContract.View<Gallery
 
     private fun updateGalleriesIdFromUser(id: String, galleriesId: ArrayList<String>) {
         databaseInstanceUsers.document(id).update("galleriesId", galleriesId)
-    }
-
-    fun joinGallery(gallery: Gallery, userId: String, galleriesId: ArrayList<String>?) {
-        if (gallery.usersId.contains(userId)) return
-        if (galleriesId == null) return
-        if (galleriesId.contains(gallery.id)) return
-        gallery.usersId.add(userId)
-        galleriesId.add(gallery.id)
-        updateGalleriesIdFromUser(userId, galleriesId)
-        updateUsersIdFromGallery(gallery.id, gallery.usersId)
-    }
-
-    fun removeGalleryRequest(gallery: Gallery, userId: String, galleriesRequestId: ArrayList<String>?) {
-        galleriesRequestId?.remove(gallery.id)
-        galleriesRequestId?.let { updateGalleryRequestsFromUser(userId, it) }
     }
 
     override fun removeObjectRequest(tObject: Gallery, userId: String) {

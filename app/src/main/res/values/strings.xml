@@ -91,5 +91,7 @@
     <string name="requests_already_sent">Requests already sent.</string>
     <string name="logout">Logout</string>
     <string name="title_request_gallery">Gallery request</string>
-    <string name="title_request_discussion">Request discussion</string>
+    <string name="title_request_discussion">Discussion request</string>
+    <string name="discussion_create">Discussion create !</string>
+    <string name="name_update">Name update !</string>
 </resources>

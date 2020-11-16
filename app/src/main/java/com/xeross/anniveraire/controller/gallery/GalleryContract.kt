@@ -8,6 +8,7 @@ interface GalleryContract {
         fun removeImages()
         fun getImageUrls(tObjects: ArrayList<String>)
      fun   getImagesUrls()
+        fun sendToast(testToast: String)
     }
 
     interface Presenter {

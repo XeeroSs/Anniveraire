@@ -7,6 +7,7 @@ interface DiscussionsContract {
         fun removeDiscussions()
         fun getDiscussions(tObjects: ArrayList<Discussion>)
         fun getDiscussions()
+        fun sendToast(idText: Int)
     }
 
     interface Presenter {

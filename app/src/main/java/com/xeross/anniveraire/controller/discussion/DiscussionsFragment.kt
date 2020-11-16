@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import com.xeross.anniveraire.R
 import com.xeross.anniveraire.adapter.DiscussionAdapter
@@ -20,7 +21,7 @@ import kotlinx.android.synthetic.main.fragment_discussions.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-class DiscussionsFragment : BaseFragment(), ClickListener<Discussion>,DiscussionsContract.View {
+class DiscussionsFragment : BaseFragment(), ClickListener<Discussion>, DiscussionsContract.View {
 
     private var presenter: DiscussionsPresenter? = null
     private var adapter: DiscussionAdapter? = null
@@ -51,12 +52,17 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion>,Discussion
         }
     }
 
+    override fun sendToast(idText: Int) {
+        Toast.makeText(context, getString(idText), Toast.LENGTH_SHORT).show()
+    }
+
+
     override fun getFragmentId() = R.layout.fragment_discussions
     override fun setFragment() = this
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        presenter = context?.let { DiscussionsPresenter(it,this) }
+        presenter = DiscussionsPresenter(this)
         initializeRecyclerView()
         userId = getCurrentUser()?.uid ?: return
     }
@@ -108,11 +114,12 @@ class DiscussionsFragment : BaseFragment(), ClickListener<Discussion>,Discussion
         discussionsFull.clear()
         adapter?.notifyDataSetChanged()
     }
+
     override fun getDiscussions(tObjects: ArrayList<Discussion>) {
+        discussionsFull.clear()
+        discussions.clear()
         discussions.addAll(tObjects)
         discussionsFull.addAll(tObjects)
-        discussions.sortList()
-        discussionsFull.sortList()
         adapter?.notifyDataSetChanged()
     }
 
